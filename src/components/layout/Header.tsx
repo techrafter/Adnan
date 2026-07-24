@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, ShoppingBag, MapPin, User, Shield, PhoneCall, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
+import { Search, ShoppingBag, User, Shield, PhoneCall, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -53,8 +53,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
             
-            {/* Logo & Location */}
-            <div className="flex items-center gap-4 sm:gap-6">
+            {/* Logo */}
+            <div className="flex items-center gap-4 sm:gap-6 shrink-0">
               <Link href="/" className="flex items-center gap-2 group">
                 <div className="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
                   A
@@ -66,50 +66,28 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                   <span className="text-[10px] uppercase font-extrabold tracking-widest text-brand-600">Super Store</span>
                 </div>
               </Link>
-
-              {/* Location Badge (Locked to Shve Ada City) */}
-              <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-xs text-brand-800">
-                <MapPin className="w-3.5 h-3.5 text-brand-600 shrink-0 animate-bounce" />
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-slate-500 leading-tight">Deliver to</span>
-                  <span className="font-semibold text-brand-900 flex items-center gap-1">
-                    {STORE_LOCATION}, Pakistan
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                  </span>
-                </div>
-              </div>
             </div>
 
-            {/* Central Search Bar */}
-            <div className="flex-1 max-w-2xl mx-2 sm:mx-4">
+            {/* Expanded Central Search Bar */}
+            <div className="flex-1 max-w-4xl mx-2 sm:mx-6">
               <button
                 onClick={onOpenSearch}
-                className="w-full flex items-center justify-between bg-slate-100/80 hover:bg-slate-100 text-slate-500 rounded-full px-4 py-2.5 sm:py-3 text-sm transition-all border border-transparent hover:border-slate-200 shadow-inner group"
+                className="w-full flex items-center justify-between bg-slate-100/90 hover:bg-slate-100 text-slate-500 rounded-full pl-4 pr-1.5 py-1.5 sm:py-2 text-sm transition-all border border-slate-200/80 hover:border-brand-500/30 shadow-inner group"
               >
-                <div className="flex items-center gap-2 overflow-hidden">
+                <div className="flex items-center gap-3 overflow-hidden flex-1">
                   <Search className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition-colors shrink-0" />
-                  <span className="truncate text-slate-400 text-xs sm:text-sm">Search fresh fruits, vegetables, staples in Shve Ada...</span>
+                  <span className="truncate text-slate-400 text-xs sm:text-sm font-medium">Search fresh fruits, vegetables, spices, oil, milk in Shve Ada...</span>
                 </div>
-                <span className="hidden sm:inline-block text-[11px] font-semibold bg-white text-slate-400 px-2 py-0.5 rounded-md border border-slate-200">
-                  ⌘K
-                </span>
+
+                <div className="bg-brand-600 group-hover:bg-brand-700 text-white rounded-full p-2 flex items-center justify-center shrink-0 transition-colors shadow-xs">
+                  <Search className="w-4 h-4" />
+                </div>
               </button>
             </div>
 
             {/* Right Action Icons */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               
-              {/* Admin Link if Admin */}
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="hidden sm:flex items-center gap-1 px-3.5 py-2 text-xs font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 rounded-full transition-colors border border-emerald-300"
-                >
-                  <Shield className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>CMS</span>
-                </Link>
-              )}
-
               {/* Account / User Button & Dropdown */}
               {user ? (
                 <div className="relative">
@@ -166,6 +144,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                           <span>Account Settings</span>
                         </Link>
 
+                        {/* Admin CMS option inside Profile Dropdown only */}
                         {isAdmin && (
                           <Link
                             href="/admin"

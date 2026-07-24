@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { X, Lock, Mail, Phone, MapPin, User as UserIcon, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 
@@ -30,6 +30,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Auto-close modal when user is logged in and onboarding is not required
+  useEffect(() => {
+    if (user && !onboardingOpen && isOpen) {
+      onClose();
+    }
+  }, [user, onboardingOpen, isOpen, onClose]);
 
   if (!isOpen && !onboardingOpen) return null;
 
@@ -73,11 +80,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     try {
       if (mode === 'signin') {
         await loginWithEmail(email, password);
-        onClose();
       } else {
         await signUpWithEmail(email, password, name, phone, address);
-        onClose();
       }
+      onClose();
     } catch (err: any) {
       setErrorMsg(err.message || 'Authentication error');
     } finally {
@@ -90,9 +96,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setGoogleLoading(true);
     try {
       await loginWithGoogle();
-      if (user?.phone && user?.address) {
-        onClose();
-      }
+      onClose();
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setErrorMsg(err.message || 'Google Sign-In failed. Please verify Firebase settings.');
