@@ -25,15 +25,19 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
 
-  // Sync state with LocalStorage for dynamic CMS updates
+  // Load custom admin saved categories and products from LocalStorage
   useEffect(() => {
-    const savedCategories = localStorage.getItem('adnan_categories');
-    if (savedCategories) {
-      try { setCategories(JSON.parse(savedCategories)); } catch (e) {}
-    }
-    const savedProducts = localStorage.getItem('adnan_products');
-    if (savedProducts) {
-      try { setProducts(JSON.parse(savedProducts)); } catch (e) {}
+    try {
+      const savedCategories = localStorage.getItem('adnan_categories');
+      if (savedCategories) {
+        setCategories(JSON.parse(savedCategories));
+      }
+      const savedProducts = localStorage.getItem('adnan_products');
+      if (savedProducts) {
+        setProducts(JSON.parse(savedProducts));
+      }
+    } catch (e) {
+      console.warn('Failed to load saved catalog state:', e);
     }
   }, []);
 
