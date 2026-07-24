@@ -4,10 +4,20 @@ service cloud.firestore {
     
     // Helper function to check if request is from an authenticated admin
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth != null && (request.auth.token.admin == true || request.auth.token.email == 'admin@adnansuperstore.com');
     }
 
-    // Public read for products, category catalog, and active payment accounts
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // User Profile collection: users can read & write their own profile; Admins can manage all users
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Public read for products, category catalog, active payment accounts, and coupons
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -28,10 +38,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Customer Orders: Anyone can create order; Admins can read/update all order statuses
+    // Customer Orders: Authenticated users can create orders; Admins can manage all orders; Users can read their own orders
     match /orders/{orderId} {
       allow create: if true;
-      allow read, update, delete: if isAdmin() || (request.auth != null && resource.data.customerPhone == request.auth.token.phone_number);
+      allow read: if isAdmin() || (request.auth != null && (resource.data.userId == request.auth.uid || resource.data.customerPhone == request.auth.token.phone_number));
+      allow update, delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
     }
     
   }

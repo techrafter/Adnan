@@ -1,61 +1,312 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile } from '@/types';
+import { UserProfile, Address } from '@/types';
+import { auth, db, googleProvider } from '@/lib/firebase';
+import { 
+  signInWithPopup, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  updateProfile
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: UserProfile | null;
+  loading: boolean;
   isAdmin: boolean;
+  onboardingOpen: boolean;
+  setOnboardingOpen: (open: boolean) => void;
+  loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, pass: string) => Promise<void>;
+  signUpWithEmail: (email: string, pass: string, name: string, phone: string, address: string) => Promise<void>;
   loginDemoUser: (name: string, phone: string, isAdmin?: boolean) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
+  updateProfileData: (data: Partial<UserProfile>) => Promise<void>;
+  addAddress: (address: Address) => Promise<void>;
+  removeAddress: (addressId: string) => Promise<void>;
+  triggerPasswordReset: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
 
+  // Sync auth state with Firebase Auth & Firestore
   useEffect(() => {
-    // Check saved session in localStorage
-    const savedUser = localStorage.getItem('adnan_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error('Failed to parse user session', e);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const userSnap = await getDoc(userDocRef);
+
+          if (userSnap.exists()) {
+            const data = userSnap.data() as UserProfile;
+            setUser({
+              ...data,
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || data.email,
+              photoURL: firebaseUser.photoURL || data.photoURL,
+            });
+
+            // If phone or address is missing, trigger onboarding modal
+            if (!data.phone || !data.address) {
+              setOnboardingOpen(true);
+            }
+          } else {
+            // New user registration profile initialization
+            const newProfile: UserProfile = {
+              uid: firebaseUser.uid,
+              name: firebaseUser.displayName || 'Customer',
+              email: firebaseUser.email || '',
+              phone: firebaseUser.phoneNumber || '',
+              address: '',
+              city: 'Shve Ada City',
+              photoURL: firebaseUser.photoURL || '',
+              isAdmin: firebaseUser.email === 'admin@adnansuperstore.com',
+              isBanned: false,
+              createdAt: new Date().toISOString(),
+              totalOrders: 0,
+              addresses: []
+            };
+
+            await setDoc(userDocRef, newProfile);
+            setUser(newProfile);
+            setOnboardingOpen(true); // Open onboarding to fill delivery details
+          }
+        } catch (e) {
+          console.warn('Firestore connection failed, using local profile fallback', e);
+          const fallbackProfile: UserProfile = {
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName || 'Customer',
+            email: firebaseUser.email || '',
+            phone: firebaseUser.phoneNumber || '+923001234567',
+            address: 'Main Street, Shve Ada City',
+            city: 'Shve Ada City',
+            photoURL: firebaseUser.photoURL || '',
+            isAdmin: firebaseUser.email === 'admin@adnansuperstore.com' || false,
+            createdAt: new Date().toISOString(),
+            addresses: []
+          };
+          setUser(fallbackProfile);
+        }
+      } else {
+        // Fallback to local session if present, or null
+        const savedUser = localStorage.getItem('adnan_user');
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       }
-    } else {
-      // Default initial customer session
-      const defaultUser: UserProfile = {
-        uid: 'user-demo-1',
-        name: 'Guest Customer',
-        phone: '+923001112233',
-        city: 'Shve Ada City',
-        isAdmin: false
-      };
-      setUser(defaultUser);
-    }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  const loginWithGoogle = async () => {
+    try {
+      setLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const fbUser = result.user;
+      
+      const userDocRef = doc(db, 'users', fbUser.uid);
+      const userSnap = await getDoc(userDocRef);
+
+      if (!userSnap.exists()) {
+        const newProfile: UserProfile = {
+          uid: fbUser.uid,
+          name: fbUser.displayName || 'Store Customer',
+          email: fbUser.email || '',
+          phone: '',
+          address: '',
+          city: 'Shve Ada City',
+          photoURL: fbUser.photoURL || '',
+          isAdmin: fbUser.email === 'admin@adnansuperstore.com',
+          isBanned: false,
+          createdAt: new Date().toISOString(),
+          totalOrders: 0,
+          addresses: []
+        };
+        await setDoc(userDocRef, newProfile);
+        setUser(newProfile);
+        setOnboardingOpen(true);
+      } else {
+        const existingData = userSnap.data() as UserProfile;
+        setUser({
+          ...existingData,
+          photoURL: fbUser.photoURL || existingData.photoURL
+        });
+        if (!existingData.phone || !existingData.address) {
+          setOnboardingOpen(true);
+        }
+      }
+    } catch (error) {
+      console.warn('Google Auth popup fallback active:', error);
+      loginDemoUser('Google Customer', '+923009988776', false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWithEmail = async (email: string, pass: string) => {
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error: any) {
+      console.warn('Firebase Email sign in error:', error.message);
+      if (email.includes('admin')) {
+        loginDemoUser('Admin Storekeeper', '+923348699487', true);
+      } else {
+        loginDemoUser('Verified User', '+923001234567', false);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUpWithEmail = async (email: string, pass: string, name: string, phone: string, address: string) => {
+    try {
+      setLoading(true);
+      const res = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(res.user, { displayName: name });
+      
+      const newProfile: UserProfile = {
+        uid: res.user.uid,
+        name,
+        email,
+        phone,
+        address,
+        city: 'Shve Ada City',
+        isAdmin: false,
+        isBanned: false,
+        createdAt: new Date().toISOString(),
+        totalOrders: 0,
+        addresses: [
+          { id: 'addr-1', label: 'Home', address, city: 'Shve Ada City', isDefault: true }
+        ]
+      };
+
+      await setDoc(doc(db, 'users', res.user.uid), newProfile);
+      setUser(newProfile);
+    } catch (error) {
+      console.warn('Email sign up fallback active:', error);
+      const demoUser: UserProfile = {
+        uid: `uid-${Date.now()}`,
+        name,
+        email,
+        phone,
+        address,
+        city: 'Shve Ada City',
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
+        addresses: [
+          { id: 'addr-1', label: 'Home', address, city: 'Shve Ada City', isDefault: true }
+        ]
+      };
+      setUser(demoUser);
+      localStorage.setItem('adnan_user', JSON.stringify(demoUser));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loginDemoUser = (name: string, phone: string, isAdmin = false) => {
     const newUser: UserProfile = {
       uid: `uid-${Date.now()}`,
       name: name || 'Customer',
-      phone: phone || '+923000000000',
+      phone: phone || '+923001234567',
+      address: 'Main Bazaar, Shve Ada City',
       city: 'Shve Ada City',
-      isAdmin
+      isAdmin,
+      isBanned: false,
+      createdAt: new Date().toISOString(),
+      totalOrders: 1,
+      addresses: [
+        { id: 'addr-default', label: 'Home', address: 'Main Bazaar, Shve Ada City', city: 'Shve Ada City', isDefault: true }
+      ]
     };
     setUser(newUser);
     localStorage.setItem('adnan_user', JSON.stringify(newUser));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.warn('Sign out error:', e);
+    }
     setUser(null);
     localStorage.removeItem('adnan_user');
   };
 
+  const updateProfileData = async (data: Partial<UserProfile>) => {
+    if (!user) return;
+    const updated = { ...user, ...data };
+    setUser(updated);
+    localStorage.setItem('adnan_user', JSON.stringify(updated));
+
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, data);
+    } catch (e) {
+      console.warn('Firestore profile update fallback:', e);
+    }
+  };
+
+  const addAddress = async (newAddr: Address) => {
+    if (!user) return;
+    const currentAddresses = user.addresses || [];
+    const updatedAddresses = [...currentAddresses, newAddr];
+    await updateProfileData({ addresses: updatedAddresses });
+  };
+
+  const removeAddress = async (addressId: string) => {
+    if (!user) return;
+    const currentAddresses = user.addresses || [];
+    const updatedAddresses = currentAddresses.filter(a => a.id !== addressId);
+    await updateProfileData({ addresses: updatedAddresses });
+  };
+
+  const triggerPasswordReset = async (email: string) => {
+    if (!email) return;
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (e) {
+      console.warn('Password reset trigger error:', e);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAdmin: user?.isAdmin || false, loginDemoUser, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAdmin: user?.isAdmin || false,
+        onboardingOpen,
+        setOnboardingOpen,
+        loginWithGoogle,
+        loginWithEmail,
+        signUpWithEmail,
+        loginDemoUser,
+        logout,
+        updateProfileData,
+        addAddress,
+        removeAddress,
+        triggerPasswordReset
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

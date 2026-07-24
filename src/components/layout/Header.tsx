@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, MapPin, User, Shield, PhoneCall } from 'lucide-react';
+import Image from 'next/image';
+import { Search, ShoppingBag, MapPin, User, Shield, PhoneCall, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { AuthModal } from '@/components/auth/AuthModal';
 import { STORE_LOCATION } from '@/lib/mockData';
 
 interface HeaderProps {
@@ -13,19 +15,29 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const { cart, setIsCartOpen } = useCart();
-  const { user, loginDemoUser, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [phoneInput, setPhoneInput] = useState('');
-  const [nameInput, setNameInput] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phoneInput) return;
-    const isAdminUser = phoneInput.endsWith('999') || phoneInput.toLowerCase().includes('admin');
-    loginDemoUser(nameInput || 'Customer', phoneInput, isAdminUser);
-    setShowAuthModal(false);
+  // User avatar helper
+  const renderAvatar = () => {
+    if (user?.photoURL) {
+      return (
+        <img
+          src={user.photoURL}
+          alt={user.name || 'User'}
+          className="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-500/20"
+        />
+      );
+    }
+    const initials = user?.name ? user.name.slice(0, 2).toUpperCase() : 'U';
+    return (
+      <div className="w-8 h-8 rounded-full bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center shadow-inner">
+        {initials}
+      </div>
+    );
   };
 
   return (
@@ -68,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               </div>
             </div>
 
-            {/* Central Search Bar (Bazaar style) */}
+            {/* Central Search Bar */}
             <div className="flex-1 max-w-2xl mx-2 sm:mx-4">
               <button
                 onClick={onOpenSearch}
@@ -76,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               >
                 <div className="flex items-center gap-2 overflow-hidden">
                   <Search className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition-colors shrink-0" />
-                  <span className="truncate text-slate-400 text-xs sm:text-sm">What are you looking for today in Shve Ada?</span>
+                  <span className="truncate text-slate-400 text-xs sm:text-sm">Search fresh fruits, vegetables, staples in Shve Ada...</span>
                 </div>
                 <span className="hidden sm:inline-block text-[11px] font-semibold bg-white text-slate-400 px-2 py-0.5 rounded-md border border-slate-200">
                   ⌘K
@@ -86,45 +98,104 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
             {/* Right Action Icons */}
             <div className="flex items-center gap-2 sm:gap-4">
-              {/* Admin Link */}
-              <Link
-                href="/admin"
-                className="hidden sm:flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-brand-600 bg-slate-100 hover:bg-brand-50 rounded-full transition-colors border border-slate-200"
-              >
-                <Shield className="w-3.5 h-3.5 text-brand-600" />
-                <span>Admin CMS</span>
-              </Link>
+              
+              {/* Admin Link if Admin */}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="hidden sm:flex items-center gap-1 px-3 py-2 text-xs font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 rounded-full transition-colors border border-emerald-300"
+                >
+                  <Shield className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Admin Panel</span>
+                </Link>
+              )}
 
-              {/* Account / User Button */}
+              {/* Account / User Button & Dropdown */}
               {user ? (
-                <div className="relative group">
-                  <button className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-full hover:bg-slate-100 transition-colors text-slate-700">
-                    <User className="w-5 h-5 text-slate-600" />
-                    <span className="hidden lg:inline text-xs font-semibold truncate max-w-[100px]">{user.name}</span>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full hover:bg-slate-100 transition-colors text-slate-700 border border-slate-200/80"
+                  >
+                    {renderAvatar()}
+                    <span className="hidden lg:inline text-xs font-extrabold text-slate-800 truncate max-w-[100px]">
+                      {user.name.split(' ')[0]}
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                   </button>
-                  <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 hidden group-hover:block z-50">
-                    <div className="px-4 py-2 border-b border-slate-100">
-                      <p className="text-xs font-bold text-slate-900">{user.name}</p>
-                      <p className="text-[11px] text-slate-500">{user.phone}</p>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
+                        <p className="text-xs font-black text-slate-900 truncate">{user.name}</p>
+                        <p className="text-[11px] text-slate-500 truncate">{user.email || user.phone}</p>
+                      </div>
+
+                      <div className="py-1">
+                        <Link
+                          href="/profile"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                        >
+                          <User className="w-4 h-4 text-slate-400" />
+                          <span>My Profile</span>
+                        </Link>
+
+                        <Link
+                          href="/profile?tab=orders"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                        >
+                          <Package className="w-4 h-4 text-slate-400" />
+                          <span>Order History</span>
+                        </Link>
+
+                        <Link
+                          href="/profile?tab=addresses"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                        >
+                          <Map className="w-4 h-4 text-slate-400" />
+                          <span>Saved Addresses</span>
+                        </Link>
+
+                        <Link
+                          href="/profile?tab=settings"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                        >
+                          <Settings className="w-4 h-4 text-slate-400" />
+                          <span>Account Settings</span>
+                        </Link>
+
+                        {isAdmin && (
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition-colors border-t border-slate-100 my-1"
+                          >
+                            <Shield className="w-4 h-4 text-emerald-600" />
+                            <span>Admin CMS</span>
+                          </Link>
+                        )}
+                      </div>
+
+                      <div className="border-t border-slate-100 pt-1">
+                        <button
+                          onClick={logout}
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Log Out</span>
+                        </button>
+                      </div>
                     </div>
-                    <Link href="/admin" className="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">
-                      Admin Dashboard
-                    </Link>
-                    <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="p-2 sm:px-3 sm:py-2 text-xs font-medium text-slate-700 hover:text-brand-600 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
                 >
-                  <User className="w-5 h-5 text-slate-600" />
-                  <span className="hidden sm:inline">Sign In</span>
+                  <User className="w-4 h-4" />
+                  <span>Login / Sign Up</span>
                 </button>
               )}
 
@@ -148,58 +219,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         </div>
       </header>
 
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <h3 className="text-xl font-bold text-slate-900 mb-1">Customer Sign In</h3>
-            <p className="text-xs text-slate-500 mb-4">Enter your mobile number to view past orders and track delivery in Shve Ada City.</p>
-
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Your Full Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Ali Raza"
-                  value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile Phone Number</label>
-                <input
-                  type="tel"
-                  placeholder="e.g. +92 300 1234567"
-                  value={phoneInput}
-                  onChange={(e) => setPhoneInput(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                  required
-                />
-                <p className="text-[10px] text-slate-400 mt-1">Tip: Add "admin" in phone to toggle Admin access mode.</p>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAuthModal(false)}
-                  className="flex-1 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 bg-brand-600 text-white rounded-xl text-xs font-bold hover:bg-brand-700 transition-colors"
-                >
-                  Continue
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Modern Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
     </>
   );
 };

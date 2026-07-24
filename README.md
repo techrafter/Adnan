@@ -1,106 +1,139 @@
-# 🛒 Adnan Super Store - Production E-Commerce Platform
+# 🛒 Adnan Super Store - Production E-Commerce Platform (Web + Mobile App)
 
-Production-ready, ultra-fast, and secure E-Commerce Web Application built specifically for **"Adnan Super Store"** (exclusively serving **Shve Ada City**). 
+A production-ready, ultra-fast, and secure E-Commerce Platform built for **"Adnan Super Store"** (exclusively serving **Shve Ada City**). 
 
-Modeled after the **Bazaar** reference layout, featuring a clean top location badge, search auto-complete, promo hero banner slider, soft category cards grid, persistent shopping cart, receipt uploader engine, WhatsApp order generator, and a live Admin Panel CMS.
-
----
-
-## 🛠️ Tech Stack & Architecture
-
-- **Framework**: Next.js 14 (App Router, React 18, TypeScript)
-- **Styling & Aesthetics**: Tailwind CSS (Curated Bazaar emerald color system, soft rounded light card grids, smooth transitions)
-- **Icons**: Lucide React
-- **Database & Auth**: Firebase Firestore (Realtime DB) & Firebase Auth (`src/lib/firebase.ts`, `firestore.rules`)
-- **Image Optimization & Hosting**: Cloudinary API (`f_auto`, `q_auto`, dynamic image transformations via `src/lib/cloudinary.ts`)
-- **Deployment**: Vercel-ready with environment variables configuration
+Featuring Next.js 14 App Router, Firebase Google OAuth & Firestore Realtime DB, Cloudinary API (`f_auto`, `q_auto` image optimization), automated WhatsApp checkout, User Dashboard with 1-click Re-Order, Admin User Management Dashboard, Live Storefront Visual Preview, and a cross-platform React Native / Expo Mobile App.
 
 ---
 
-## 🌐 Key Features & Workflow
+## 📁 Modular Project Directory Structure
 
-### 1. Storefront Experience (Bazaar Layout)
-- **Top Location Badge**: Fixed to `📍 Shve Ada City, Pakistan` (Restricted delivery location).
-- **Auto-Suggest Search Bar**: Instant search modal with keyboard shortcut `⌘K` trigger.
-- **Top Category Navigation Bar**: Horizontal scrolling bar with instant category filters.
-- **Spend Goal Progress Banner**: Dynamic progress bar calculating `"You are Rs. X away from FREE Home Delivery"`.
-- **Hero Promo Banner**: Bazaar Select style banner slider with CTA buttons and deal pricing.
-- **Product Catalog**: Cards with discount badges, inventory stock status (In Stock / Out of Stock), and instant quantity counters (`- 1 +`).
-
-### 2. WhatsApp Checkout & Receipt Engine
-- **Multi-Step Checkout**: Input customer details & address in **Shve Ada City**.
-- **Payment Method Selector**: Select EasyPaisa, JazzCash, Meezan Bank IBFT, or Cash on Delivery (COD).
-- **Cloudinary Receipt Screenshot Upload**: Drag-and-drop receipt screenshot with auto-compression (`f_auto, q_auto`) and preview.
-- **WhatsApp Pre-filled Redirect**: Generates formatted WhatsApp payload containing Order ID, Customer Name, Address, Itemized List, Total Amount, and Cloudinary Receipt Screenshot URL.
-
-### 3. Advanced Admin Panel & CMS (`/admin`)
-- **Analytics Widgets**: Total Revenue, Active Orders, Catalog Items, and Out of Stock Alerts.
-- **Live Inventory Manager**: Add, Edit, Delete products, adjust prices, stock count, and upload images to Cloudinary instantly.
-- **Order Stream**: Real-time incoming order stream with status workflow (`Pending` ➔ `Paid` ➔ `Shipped` ➔ `Delivered`) and receipt screenshot inspection.
-- **Dynamic Payment Gateway Setup**: Manage up to 5 payment accounts (EasyPaisa, JazzCash, Meezan Bank, COD).
-- **Coupon Manager**: Create percentage (%) or flat PKR discount codes.
-- **Live Customer Storefront Toggle**: Direct preview link.
-
----
-
-## 🚀 Setup & Installation Instructions
-
-### 1. Clone & Install Dependencies
-```bash
-cd Adnan
-npm install
+```text
+Adnan/
+├── src/
+│   ├── app/
+│   │   ├── admin/             # Admin Panel & User Management (/admin)
+│   │   ├── checkout/          # Multi-step WhatsApp Checkout (/checkout)
+│   │   ├── product/[id]/      # Product Detail Page (/product/p-101)
+│   │   ├── profile/           # User Dashboard & Account Settings (/profile)
+│   │   ├── globals.css        # Tailwind CSS styling system
+│   │   ├── layout.tsx         # Root Layout with AuthProvider & CartProvider
+│   │   └── page.tsx           # Home Storefront Catalog Page
+│   ├── components/
+│   │   ├── admin/             # ProductManager, OrderStream, UserManagement, PaymentConfig
+│   │   ├── auth/              # AuthModal (Google OAuth, Email Auth, Onboarding form)
+│   │   ├── checkout/          # PaymentGatewaySelector, ReceiptUploader
+│   │   ├── layout/            # Header, CategoryNav, Footer
+│   │   └── storefront/        # ProductGrid, CategoryGrid, CartDrawer, HeroBanner
+│   ├── context/
+│   │   ├── AuthContext.tsx    # Firebase Auth, Google OAuth, Firestore User Profile, Address Sync
+│   │   └── CartContext.tsx    # Persistent Shopping Cart & Coupon Engine
+│   ├── lib/
+│   │   ├── cloudinary.ts      # Cloudinary API & f_auto, q_auto Image Transformer
+│   │   ├── firebase.ts        # Firebase Auth & Firestore Singleton Setup
+│   │   ├── mockData.ts        # Initial Store Catalog & Payment Accounts
+│   │   └── whatsapp.ts        # Formatted WhatsApp Order Payload Generator
+│   └── types/
+│       └── index.ts           # Product, UserProfile, Order, Address, PaymentAccount types
+├── mobile/
+│   ├── App.tsx                # Cross-Platform React Native / Expo Mobile Application
+│   ├── app.json               # Expo App Manifest
+│   └── package.json           # Mobile App Dependencies
+├── firestore.rules            # Production Security Rules for Users, Orders, Catalog
+└── README.md                  # Complete Setup & Production Deployment Guide
 ```
 
-### 2. Local Environment Setup
-Copy `.env.example` to `.env.local` and add your real credentials:
-```bash
-cp .env.example .env.local
-```
+---
 
-### 3. Running Locally
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+## 🔐 1. Step-by-Step Google Cloud Console Setup (OAuth 2.0)
+
+To enable **Google One-Tap / Popup Sign-In**:
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Select or create a project named `adnan-super-store`.
+3. Navigate to **APIs & Services > OAuth consent screen**:
+   - Choose **External** user type and click **Create**.
+   - Fill App name (`Adnan Super Store`), User support email, and Developer contact info.
+   - Save and continue.
+4. Navigate to **APIs & Services > Credentials**:
+   - Click **Create Credentials > OAuth client ID**.
+   - Select **Web application**.
+   - Set **Authorized JavaScript origins**:
+     - `http://localhost:3000`
+     - `https://adnan-super-store.vercel.app` (or your custom domain)
+   - Set **Authorized redirect URIs**:
+     - `https://adnan-1c2a7.firebaseapp.com/__/auth/handler`
+5. Copy the generated **Client ID** and **Client Secret**.
 
 ---
 
-## ☁️ Cloudinary SDK & Image Transformation Setup
+## 🔥 2. Step-by-Step Firebase Auth & Firestore Setup
 
-All uploaded product thumbnails and customer payment receipt screenshots automatically pass through Cloudinary's auto-format and auto-compress pipeline:
-```typescript
-// Auto-injected transformation flags: f_auto, q_auto, w_600
-getOptimizedImageUrl(url, width = 600, quality = 'auto')
-```
-
-1. Create a free account at [Cloudinary](https://cloudinary.com/).
-2. Create an **Unsigned Upload Preset** under `Settings > Upload > Upload presets`.
-3. Set your Cloud Name and Upload Preset in `.env.local`:
-   ```env
-   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
-   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="your_preset_name"
-   ```
-
----
-
-## 🔥 Firebase Firestore & Security Rules Setup
-
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/).
-2. Enable Firestore Database and Firebase Auth (Phone / Email).
-3. Deploy the included `firestore.rules` file:
+1. Open the [Firebase Console](https://console.firebase.google.com/).
+2. Select your Firebase project (e.g. `adnan-1c2a7`).
+3. Under **Authentication > Sign-in method**:
+   - Enable **Google**: Paste your Google OAuth Client ID & Secret from Google Cloud Console.
+   - Enable **Email/Password**.
+4. Under **Firestore Database**:
+   - Create database in `eur3` or `asia-south1`.
+5. Deploy `firestore.rules`:
    ```bash
    firebase deploy --only firestore:rules
    ```
 
 ---
 
-## 📦 Deployment to Vercel
+## ☁️ 3. Step-by-Step Cloudinary API Setup
 
-1. Push code to GitHub repository.
-2. Import project into Vercel.
-3. Configure the Environment Variables under **Project Settings > Environment Variables**:
+All product and payment receipt images automatically pass through Cloudinary's `f_auto` and `q_auto` filters:
+
+1. Sign up at [Cloudinary](https://cloudinary.com/).
+2. Go to **Settings > Upload > Upload presets**.
+3. Click **Add upload preset**:
+   - Preset name: `adnan_preset` (or your custom name).
+   - Signing Mode: **Unsigned**.
+   - Save preset.
+4. Copy your **Cloud Name** and **Upload Preset Name** into `.env.local`:
+   ```env
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
+   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="adnan_preset"
+   ```
+
+---
+
+## 🚀 4. Local Development & Testing
+
+1. Clone repository & install web dependencies:
+   ```bash
+   npm install
+   ```
+2. Start Next.js development server:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in browser.
+
+3. Run React Native Mobile App:
+   ```bash
+   cd mobile
+   npm install
+   npx expo start
+   ```
+
+---
+
+## 📦 5. Production Vercel Deployment Guide
+
+1. Push repository code to GitHub.
+2. Log into [Vercel](https://vercel.com) and click **Add New Project**.
+3. Import your GitHub repository.
+4. Add the following **Environment Variables** in Vercel settings:
    - `NEXT_PUBLIC_FIREBASE_API_KEY`
+   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   - `NEXT_PUBLIC_FIREBASE_APP_ID`
    - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
    - `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
-   - `NEXT_PUBLIC_STORE_LOCATION`
-4. Click **Deploy**.
+5. Click **Deploy**. Vercel will build serverless routes with instant global CDN speed.

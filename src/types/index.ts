@@ -58,12 +58,21 @@ export interface OrderItem {
   unit: string;
 }
 
+export interface Address {
+  id: string;
+  label: 'Home' | 'Office' | 'Other' | string;
+  address: string;
+  city: string;
+  isDefault?: boolean;
+}
+
 export interface Order {
   id: string;
+  userId?: string;
   customerName: string;
   customerPhone: string;
   address: string;
-  city: 'Shve Ada City'; // Enforced location
+  city: string;
   items: OrderItem[];
   subtotal: number;
   discount: number;
@@ -71,7 +80,7 @@ export interface Order {
   totalAmount: number;
   paymentMethod: string;
   receiptUrl?: string; // Cloudinary receipt image link
-  status: 'Pending' | 'Paid' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: 'Pending' | 'Paid' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   createdAt: string;
   notes?: string;
 }
@@ -81,6 +90,12 @@ export interface UserProfile {
   name: string;
   email?: string;
   phone?: string;
+  address?: string;
   city: string;
+  photoURL?: string;
   isAdmin: boolean;
+  isBanned?: boolean;
+  createdAt?: string;
+  totalOrders?: number;
+  addresses?: Address[];
 }
