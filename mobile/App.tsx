@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 
 const STORE_LOCATION = "Shve Ada City";
-const ADMIN_WHATSAPP_NUMBER = "+923001234567";
+const ADMIN_WHATSAPP_NUMBER = "+923348699487";
 
 interface Product {
   id: string;

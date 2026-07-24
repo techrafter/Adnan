@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         <div className="bg-brand-900 text-emerald-100 text-xs py-1.5 px-4 text-center font-medium flex items-center justify-center gap-2">
           <span>⚡ Fast Grocery Delivery Exclusively in <strong className="text-white underline">{STORE_LOCATION}</strong></span>
           <span className="hidden md:inline">|</span>
-          <span className="hidden md:inline flex items-center gap-1"><PhoneCall className="w-3 h-3 text-emerald-400" /> Helpline: +92 300 1234567</span>
+          <span className="hidden md:inline flex items-center gap-1"><PhoneCall className="w-3 h-3 text-emerald-400" /> Helpline: +92 334 8699487</span>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
