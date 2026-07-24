@@ -10,6 +10,8 @@ import { ProductGrid } from '@/components/storefront/ProductGrid';
 import { WhyUsSection } from '@/components/storefront/WhyUsSection';
 import { CartDrawer } from '@/components/storefront/CartDrawer';
 import { QuickSearchModal } from '@/components/storefront/QuickSearchModal';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
+import { AuthModal } from '@/components/auth/AuthModal';
 import { Footer } from '@/components/layout/Footer';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mockData';
 import { Category, Product } from '@/types';
@@ -18,6 +20,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
@@ -35,7 +38,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-50">
+    <div className="min-h-screen flex flex-col justify-between bg-slate-50 pb-16 sm:pb-0">
       
       <div>
         {/* Main Sticky Header */}
@@ -75,10 +78,22 @@ export default function HomePage() {
       {/* Persistent Cart Drawer */}
       <CartDrawer />
 
+      {/* App Mobile Bottom Navigation Bar (Fixed Bottom Dock) */}
+      <MobileBottomNav
+        onOpenSearch={() => setIsSearchModalOpen(true)}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+      />
+
       {/* Quick Search Auto-Suggest Modal */}
       <QuickSearchModal
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
+      />
+
+      {/* Auth Modal Triggered from Bottom Nav */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
 
       {/* Footer */}
