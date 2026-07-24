@@ -15,7 +15,9 @@ export const Footer: React.FC = () => {
           {/* Col 1: Store Branding */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-brand-500 font-serif text-3xl font-bold">بازار</span>
+              <div className="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
+                A
+              </div>
               <span className="font-sans font-extrabold text-white text-xl">ADNAN SUPER STORE</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">

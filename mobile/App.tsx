@@ -132,9 +132,13 @@ Order placed via Adnan Super Store Android App.`;
       
       {/* App Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.brandUrdu}>بازار</Text>
-          <Text style={styles.brandEnglish}>ADNAN SUPER STORE</Text>
+        <View style={styles.brandRow}>
+          <View style={styles.logoBadge}>
+            <Text style={styles.logoBadgeText}>A</Text>
+          </View>
+          <View>
+            <Text style={styles.brandEnglish}>ADNAN SUPER STORE</Text>
+          </View>
         </View>
         <View style={styles.locationBadge}>
           <Text style={styles.locationText}>📍 {STORE_LOCATION}</Text>
@@ -260,8 +264,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#e2e8f0'
   },
-  brandUrdu: { fontSize: 22, fontWeight: 'bold', color: '#00a950' },
-  brandEnglish: { fontSize: 10, fontWeight: 'bold', letterSpacing: 1, color: '#0f172a' },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logoBadge: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#00a950', alignItems: 'center', justifyContent: 'center' },
+  logoBadgeText: { color: '#ffffff', fontWeight: 'bold', fontSize: 18 },
+  brandEnglish: { fontSize: 12, fontWeight: 'bold', letterSpacing: 0.5, color: '#0f172a' },
   locationBadge: { backgroundColor: '#dcfce7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   locationText: { fontSize: 11, fontWeight: 'bold', color: '#00672e' },
   content: { padding: 16 },

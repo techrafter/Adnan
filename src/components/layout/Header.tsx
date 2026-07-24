@@ -44,12 +44,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
             {/* Logo & Location */}
             <div className="flex items-center gap-4 sm:gap-6">
               <Link href="/" className="flex items-center gap-2 group">
+                <div className="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
+                  A
+                </div>
                 <div className="flex flex-col">
-                  <span className="font-extrabold text-2xl sm:text-3xl tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors flex items-center gap-1">
-                    <span className="text-brand-600 font-serif text-3xl sm:text-4xl">بازار</span>
-                    <span className="font-sans font-bold text-slate-900 text-lg sm:text-2xl">ADNAN</span>
+                  <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors">
+                    ADNAN
                   </span>
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-brand-600">Super Store</span>
+                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-brand-600">Super Store</span>
                 </div>
               </Link>
 
