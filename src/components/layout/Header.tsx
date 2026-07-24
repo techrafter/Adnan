@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Search, ShoppingBag, User, Shield, PhoneCall, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
+import { Search, ShoppingBag, User, Shield, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -28,13 +27,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         <img
           src={user.photoURL}
           alt={user.name || 'User'}
-          className="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-500/20"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-emerald-500/20"
         />
       );
     }
     const initials = user?.name ? user.name.slice(0, 2).toUpperCase() : 'U';
     return (
-      <div className="w-8 h-8 rounded-full bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center shadow-inner">
+      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center shadow-inner">
         {initials}
       </div>
     );
@@ -42,49 +41,49 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-sm transition-all">
-        {/* Top Announcement Bar */}
-        <div className="bg-brand-900 text-emerald-100 text-xs py-2 px-4 text-center font-semibold flex items-center justify-center gap-2 tracking-wide">
-          <span>✨ First Premier Online Grocery Store in <strong className="text-white underline">Razzar</strong> | Ultra-Fast Express Doorstep Delivery</span>
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-xs transition-all">
+        {/* Top Announcement Bar (Hidden on Mobile for App Compactness) */}
+        <div className="hidden sm:flex bg-brand-900 text-emerald-100 text-xs py-1.5 px-4 text-center font-semibold items-center justify-center gap-2 tracking-wide">
+          <span>✨ First Premier Online Grocery Store in <strong className="text-white underline">{STORE_LOCATION}</strong> | Ultra-Fast Express Doorstep Delivery</span>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-20 gap-2 sm:gap-4">
             
-            {/* Logo (Fixed Width & No Shrink) */}
-            <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-              <Link href="/" className="flex items-center gap-2 group">
-                <div className="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
+            {/* Logo */}
+            <div className="flex items-center gap-2 sm:gap-6 shrink-0">
+              <Link href="/" className="flex items-center gap-1.5 group">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-base sm:text-xl shadow-md group-hover:scale-105 transition-transform">
                   A
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors">
+                  <span className="font-extrabold text-base sm:text-2xl tracking-tight text-slate-900 leading-tight group-hover:text-brand-600 transition-colors">
                     ADNAN
                   </span>
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-brand-600">Super Store</span>
+                  <span className="text-[8px] sm:text-[10px] uppercase font-extrabold tracking-widest text-brand-600">Super Store</span>
                 </div>
               </Link>
             </div>
 
-            {/* Expanded Central Search Bar */}
+            {/* Compact Mobile & Desktop Search Bar */}
             <div className="flex-1 max-w-4xl mx-1 sm:mx-4">
               <button
                 onClick={onOpenSearch}
-                className="w-full flex items-center justify-between bg-slate-100/90 hover:bg-slate-100 text-slate-500 rounded-full pl-4 pr-1.5 py-1.5 sm:py-2 text-sm transition-all border border-slate-200/80 hover:border-brand-500/30 shadow-inner group"
+                className="w-full flex items-center justify-between bg-slate-100 hover:bg-slate-100/80 text-slate-500 rounded-full pl-3 sm:pl-4 pr-1 sm:pr-1.5 py-1 sm:py-2 text-xs sm:text-sm transition-all border border-slate-200/80 shadow-inner group"
               >
-                <div className="flex items-center gap-3 overflow-hidden flex-1">
-                  <Search className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition-colors shrink-0" />
-                  <span className="truncate text-slate-400 text-xs sm:text-sm font-medium">Search fresh fruits, vegetables, spices, oil, milk in Razzar...</span>
+                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden flex-1">
+                  <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 group-hover:text-brand-600 transition-colors shrink-0" />
+                  <span className="truncate text-slate-400 text-xs font-medium">Search milk, atta, spices in {STORE_LOCATION}...</span>
                 </div>
 
-                <div className="bg-brand-600 group-hover:bg-brand-700 text-white rounded-full p-2 flex items-center justify-center shrink-0 transition-colors shadow-xs">
-                  <Search className="w-4 h-4" />
+                <div className="bg-brand-600 text-white rounded-full p-1.5 sm:p-2 flex items-center justify-center shrink-0 shadow-xs">
+                  <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               </button>
             </div>
 
-            {/* Right Action Icons (Strict Fixed Layout Container) */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Right Desktop Actions (Hidden/Compact on Mobile due to MobileBottomNav) */}
+            <div className="hidden sm:flex items-center gap-2 sm:gap-3 shrink-0">
               
               {/* Account / User Button & Dropdown */}
               {user ? (
@@ -176,7 +175,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 </button>
               )}
 
-              {/* Fixed Width Static Cart Button (Prevents Layout Shifting) */}
+              {/* Fixed Width Static Cart Button */}
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative w-[130px] sm:w-[145px] h-[40px] bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 px-3 border border-emerald-500/30 group shrink-0"
@@ -185,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 <div className="relative flex items-center justify-center shrink-0">
                   <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
                   {totalItemsInCart > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs border border-brand-700 animate-bounce">
+                    <span className="absolute -top-2 -right-2 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs border border-brand-700">
                       {totalItemsInCart}
                     </span>
                   )}
