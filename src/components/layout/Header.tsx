@@ -176,19 +176,29 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 </button>
               )}
 
-              {/* Cart Drawer Trigger Button */}
+              {/* Live Real-Time Cart Button with Price */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2.5 sm:px-4 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-transform active:scale-95 shadow-sm flex items-center gap-2"
+                className="relative px-3.5 py-2 sm:px-4 sm:py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-all active:scale-95 shadow-md flex items-center gap-2.5 border border-emerald-500/30 group"
                 aria-label="View Shopping Cart"
               >
-                <ShoppingBag className="w-5 h-5" />
-                <span className="hidden sm:inline font-bold text-xs">Cart</span>
-                {totalItemsInCart > 0 && (
-                  <span className="bg-white text-brand-800 text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
-                    {totalItemsInCart}
+                <div className="relative flex items-center justify-center">
+                  <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  {totalItemsInCart > 0 && (
+                    <span className="absolute -top-2.5 -right-2 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm border border-brand-700 animate-bounce">
+                      {totalItemsInCart}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="text-[9px] font-extrabold text-emerald-200 uppercase tracking-widest">
+                    {totalItemsInCart > 0 ? `${totalItemsInCart} ${totalItemsInCart === 1 ? 'Item' : 'Items'}` : 'Cart'}
                   </span>
-                )}
+                  <span className="text-xs font-black text-white">
+                    Rs. {subtotal.toLocaleString()}
+                  </span>
+                </div>
               </button>
             </div>
 

@@ -18,6 +18,7 @@ interface CartContextType {
   discount: number;
   deliveryFee: number;
   totalAmount: number;
+  totalSavings: number;
   appliedCoupon: Coupon | null;
   applyCoupon: (code: string) => { success: boolean; message: string };
   removeCoupon: () => void;
@@ -91,7 +92,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return found ? found.quantity : 0;
   };
 
-  // Calculations
+  // Real-time Calculations
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
   let discount = 0;
@@ -106,6 +107,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD || subtotal === 0 ? 0 : STANDARD_DELIVERY_FEE;
   const totalAmount = Math.max(0, subtotal - discount + deliveryFee);
   const amountAwayFromFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
+
+  // Real-time Savings calculation: Difference between original prices and current prices + coupons
+  const productSavings = cart.reduce((acc, item) => {
+    const orig = item.product.originalPrice || item.product.price;
+    const diff = Math.max(0, orig - item.product.price);
+    return acc + diff * item.quantity;
+  }, 0);
+  const totalSavings = productSavings + discount;
 
   const applyCoupon = (code: string) => {
     const trimmed = code.trim().toUpperCase();
@@ -142,6 +151,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         discount,
         deliveryFee,
         totalAmount,
+        totalSavings,
         appliedCoupon,
         applyCoupon,
         removeCoupon,
