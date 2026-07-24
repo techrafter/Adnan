@@ -3,59 +3,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Category, Product } from '@/types';
-import { Plus, Edit2, Trash2, X, UploadCloud, Search, Layers, RefreshCw } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, UploadCloud, Search, Layers } from 'lucide-react';
 import { getOptimizedImageUrl, uploadToCloudinary } from '@/lib/cloudinary';
-
-const DEFAULT_STARTER_CATEGORIES: Omit<Category, 'id'>[] = [
-  {
-    name: "Fruits & Vegetables",
-    slug: "fruits-vegetables",
-    icon: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Milk & Dairy",
-    slug: "milk-dairy",
-    icon: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Spices & Sauces",
-    slug: "spices-sauces",
-    icon: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Flour & Atta",
-    slug: "flour",
-    icon: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Oil & Ghee",
-    slug: "oil-ghee",
-    icon: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Beverages",
-    slug: "beverages",
-    icon: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Chicken & Meat",
-    slug: "chicken-meat",
-    icon: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  },
-  {
-    name: "Cleaning & Homecare",
-    slug: "cleaning-homecare",
-    icon: "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=200&auto=format&fit=crop&q=80",
-    itemCount: 0
-  }
-];
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -86,15 +35,6 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.slug.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleSeedStarterCategories = () => {
-    DEFAULT_STARTER_CATEGORIES.forEach((cat) => {
-      const exists = categories.some((c) => c.slug === cat.slug);
-      if (!exists) {
-        onAddCategory(cat);
-      }
-    });
-  };
 
   const openCreateModal = () => {
     setEditingCategory(null);
@@ -171,25 +111,13 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {categories.length === 0 && (
-            <button
-              onClick={handleSeedStarterCategories}
-              className="bg-emerald-50 hover:bg-emerald-100 text-brand-700 border border-emerald-300 text-xs font-bold px-3 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shrink-0"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Load Starter Categories</span>
-            </button>
-          )}
-
-          <button
-            onClick={openCreateModal}
-            className="flex-1 sm:flex-initial bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add New Category</span>
-          </button>
-        </div>
+        <button
+          onClick={openCreateModal}
+          className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add New Category</span>
+        </button>
       </div>
 
       {/* Categories Grid Table */}
@@ -201,14 +129,15 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
             </div>
             <h5 className="font-extrabold text-slate-800 text-sm">No Categories Currently Added</h5>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Click <strong>"Add New Category"</strong> to add your custom categories with Cloudinary image thumbnails, or click <strong>"Load Starter Categories"</strong>.
+              Click <strong>"Add New Category"</strong> to add your store category with title and Cloudinary image thumbnail.
             </p>
             <div className="pt-2">
               <button
-                onClick={handleSeedStarterCategories}
-                className="bg-brand-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl shadow-xs"
+                onClick={openCreateModal}
+                className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow-xs inline-flex items-center gap-1.5"
               >
-                Load Starter Categories (1-Click)
+                <Plus className="w-4 h-4" />
+                <span>Add New Category</span>
               </button>
             </div>
           </div>
