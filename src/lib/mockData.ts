@@ -318,58 +318,19 @@ export const MOCK_COUPONS: Coupon[] = [
     code: "ADNAN10",
     type: "percentage",
     value: 10,
-    minOrderAmount: 1000,
+    minOrderAmount: 500,
     expiryDate: "2026-12-31",
     isActive: true
   },
   {
     id: "cp-2",
-    code: "SHVEADA50",
+    code: "WELCOME50",
     type: "fixed",
     value: 50,
-    minOrderAmount: 500,
+    minOrderAmount: 300,
     expiryDate: "2026-12-31",
     isActive: true
   }
 ];
 
-export const MOCK_ORDERS: Order[] = [
-  {
-    id: "ORD-9821",
-    customerName: "Muhammad Bilal",
-    customerPhone: "+923019876543",
-    address: "House 14, Block B, Main Bazaar, Shve Ada City",
-    city: "Shve Ada City",
-    items: [
-      { productId: "p-101", name: "Adnan Select Premium Biryani Spice Mix", price: 155, quantity: 2, unit: "100g Pack" },
-      { productId: "p-102", name: "Olper's Full Cream UHT Milk", price: 290, quantity: 3, unit: "1 Liter" }
-    ],
-    subtotal: 1180,
-    discount: 50,
-    deliveryFee: 50,
-    totalAmount: 1180,
-    paymentMethod: "EasyPaisa",
-    receiptUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80",
-    status: "Pending",
-    createdAt: new Date().toISOString(),
-    notes: "Please call before arriving."
-  },
-  {
-    id: "ORD-9820",
-    customerName: "Zainab Fatima",
-    customerPhone: "+923024567890",
-    address: "Near Girls College, Station Road, Shve Ada City",
-    city: "Shve Ada City",
-    items: [
-      { productId: "p-103", name: "Sunridge Fine Whole Wheat Atta", price: 1350, quantity: 1, unit: "10 kg Bag" }
-    ],
-    subtotal: 1350,
-    discount: 0,
-    deliveryFee: 0,
-    totalAmount: 1350,
-    paymentMethod: "JazzCash",
-    receiptUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80",
-    status: "Paid",
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
-  }
-];
+export const MOCK_ORDERS: Order[] = [];

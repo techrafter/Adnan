@@ -61,6 +61,14 @@ export default function AdminPage() {
     if (savedProducts) {
       try { setProducts(JSON.parse(savedProducts)); } catch (e) {}
     }
+    const savedOrders = localStorage.getItem('adnan_orders');
+    if (savedOrders) {
+      try { setOrders(JSON.parse(savedOrders)); } catch (e) {}
+    }
+    const savedCoupons = localStorage.getItem('adnan_coupons');
+    if (savedCoupons) {
+      try { setCoupons(JSON.parse(savedCoupons)); } catch (e) {}
+    }
   }, []);
 
   const saveCategories = (updated: Category[]) => {
@@ -71,6 +79,16 @@ export default function AdminPage() {
   const saveProducts = (updated: Product[]) => {
     setProducts(updated);
     localStorage.setItem('adnan_products', JSON.stringify(updated));
+  };
+
+  const saveOrders = (updated: Order[]) => {
+    setOrders(updated);
+    localStorage.setItem('adnan_orders', JSON.stringify(updated));
+  };
+
+  const saveCoupons = (updated: Coupon[]) => {
+    setCoupons(updated);
+    localStorage.setItem('adnan_coupons', JSON.stringify(updated));
   };
 
   // Category CRUD Handlers
@@ -109,7 +127,8 @@ export default function AdminPage() {
 
   // Order status CRUD
   const handleUpdateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(orders.map((o) => (o.id === orderId ? { ...o, status } : o)));
+    const updated = orders.map((o) => (o.id === orderId ? { ...o, status } : o));
+    saveOrders(updated);
   };
 
   // Strict Protection: Show loading state
@@ -385,7 +404,7 @@ export default function AdminPage() {
           {activeTab === 'coupons' && (
             <CouponManager
               coupons={coupons}
-              onSaveCoupons={setCoupons}
+              onSaveCoupons={saveCoupons}
             />
           )}
         </div>

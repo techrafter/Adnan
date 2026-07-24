@@ -74,7 +74,7 @@ export default function CheckoutPage() {
       customerName,
       customerPhone,
       address,
-      city: 'Shve Ada City',
+      city: STORE_LOCATION,
       items: cart.map((i) => ({
         productId: i.product.id,
         name: i.product.name,
@@ -92,6 +92,15 @@ export default function CheckoutPage() {
       createdAt: new Date().toISOString(),
       notes,
     };
+
+    // Save to real-time order stream for Admin CMS
+    try {
+      const savedOrders = localStorage.getItem('adnan_orders');
+      const currentOrders: Order[] = savedOrders ? JSON.parse(savedOrders) : [];
+      localStorage.setItem('adnan_orders', JSON.stringify([newOrder, ...currentOrders]));
+    } catch (e) {
+      console.warn('Failed to persist order to local stream:', e);
+    }
 
     setCompletedOrder(newOrder);
 

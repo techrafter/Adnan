@@ -118,20 +118,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const applyCoupon = (code: string) => {
     const trimmed = code.trim().toUpperCase();
-    const found = MOCK_COUPONS.find((c) => c.code.toUpperCase() === trimmed && c.isActive);
+    let availableCoupons: Coupon[] = MOCK_COUPONS;
+    try {
+      const saved = localStorage.getItem('adnan_coupons');
+      if (saved) {
+        availableCoupons = JSON.parse(saved);
+      }
+    } catch (e) {}
+
+    const found = availableCoupons.find((c) => c.code.toUpperCase() === trimmed && c.isActive);
 
     if (!found) {
-      return { success: false, message: 'Invalid coupon code.' };
+      return { success: false, message: 'Invalid or inactive promo coupon code.' };
     }
     if (subtotal < found.minOrderAmount) {
       return {
         success: false,
-        message: `Minimum order amount for code ${found.code} is Rs. ${found.minOrderAmount}`,
+        message: `Minimum order amount required for coupon ${found.code} is Rs. ${found.minOrderAmount}`,
       };
     }
 
     setAppliedCoupon(found);
-    return { success: true, message: `Coupon '${found.code}' applied successfully!` };
+    return { success: true, message: `Promo coupon '${found.code}' applied successfully!` };
   };
 
   const removeCoupon = () => {
