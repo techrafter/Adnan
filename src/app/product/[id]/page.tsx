@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/storefront/CartDrawer';
+import { Product } from '@/types';
 import { MOCK_PRODUCTS, STORE_LOCATION } from '@/lib/mockData';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import { useCart } from '@/context/CartContext';
