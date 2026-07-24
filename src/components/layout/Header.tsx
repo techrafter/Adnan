@@ -14,7 +14,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
-  const { cart, setIsCartOpen } = useCart();
+  const { cart, setIsCartOpen, subtotal } = useCart();
   const { user, isAdmin, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
