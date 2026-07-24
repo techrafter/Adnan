@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { X, Lock, Mail, Phone, MapPin, User as UserIcon, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, Lock, Mail, Phone, MapPin, User as UserIcon, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -30,6 +30,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [city, setCity] = useState('Shve Ada City');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   if (!isOpen && !onboardingOpen) return null;
 
@@ -87,14 +88,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const handleGoogleSignIn = async () => {
     setErrorMsg('');
+    setGoogleLoading(true);
     try {
       await loginWithGoogle();
-      // If user profile is complete, close modal; if onboarding is needed, onboarding step renders automatically
       if (user?.phone && user?.address) {
         onClose();
       }
     } catch (err: any) {
-      setErrorMsg('Google Sign-In failed');
+      console.error('Google sign in error:', err);
+      setErrorMsg(err.message || 'Google Sign-In failed. Please verify Firebase settings.');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -231,27 +235,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         {/* Primary Google Auth Button */}
         <button
           onClick={handleGoogleSignIn}
-          className="w-full py-3 px-4 bg-slate-900 hover:bg-black text-white font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-3 group mb-4 active:scale-98"
+          disabled={googleLoading}
+          className="w-full py-3 px-4 bg-slate-900 hover:bg-black text-white font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-3 group mb-4 active:scale-98 disabled:opacity-80"
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path
-              fill="#EA4335"
-              d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"
-            />
-            <path
-              fill="#4285F4"
-              d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"
-            />
-          </svg>
-          <span>Continue with Google</span>
+          {googleLoading ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin text-emerald-400" />
+              <span>Connecting to Google OAuth...</span>
+            </div>
+          ) : (
+            <>
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path
+                  fill="#EA4335"
+                  d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"
+                />
+              </svg>
+              <span>Continue with Google</span>
+            </>
+          )}
         </button>
 
         <div className="relative my-4 flex items-center justify-center">

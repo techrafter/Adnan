@@ -5,6 +5,7 @@ import { UserProfile, Address } from '@/types';
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { 
   signInWithPopup, 
+  signInWithRedirect,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
@@ -51,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser({
               ...data,
               uid: firebaseUser.uid,
+              name: firebaseUser.displayName || data.name || 'Customer',
               email: firebaseUser.email || data.email,
               photoURL: firebaseUser.photoURL || data.photoURL,
             });
@@ -60,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setOnboardingOpen(true);
             }
           } else {
-            // New user registration profile initialization
+            // New user profile creation
             const newProfile: UserProfile = {
               uid: firebaseUser.uid,
               name: firebaseUser.displayName || 'Customer',
@@ -81,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setOnboardingOpen(true); // Open onboarding to fill delivery details
           }
         } catch (e) {
-          console.warn('Firestore connection failed, using local profile fallback', e);
+          console.warn('Firestore connection fallback active:', e);
           const fallbackProfile: UserProfile = {
             uid: firebaseUser.uid,
             name: firebaseUser.displayName || 'Customer',
@@ -116,18 +118,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loginWithGoogle = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const result = await signInWithPopup(auth, googleProvider);
+      // Primary: Google Auth Popup
+      let result;
+      try {
+        result = await signInWithPopup(auth, googleProvider);
+      } catch (popupError: any) {
+        // Fallback: If popup was blocked, try redirect
+        if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
+          console.log('Popup blocked or closed, attempting redirect mode...');
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }
+        throw popupError;
+      }
+
       const fbUser = result.user;
-      
       const userDocRef = doc(db, 'users', fbUser.uid);
       const userSnap = await getDoc(userDocRef);
 
       if (!userSnap.exists()) {
         const newProfile: UserProfile = {
           uid: fbUser.uid,
-          name: fbUser.displayName || 'Store Customer',
+          name: fbUser.displayName || 'Google Customer',
           email: fbUser.email || '',
           phone: '',
           address: '',
@@ -144,17 +158,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setOnboardingOpen(true);
       } else {
         const existingData = userSnap.data() as UserProfile;
-        setUser({
+        const updatedUser = {
           ...existingData,
+          name: fbUser.displayName || existingData.name,
+          email: fbUser.email || existingData.email,
           photoURL: fbUser.photoURL || existingData.photoURL
-        });
+        };
+        setUser(updatedUser);
         if (!existingData.phone || !existingData.address) {
           setOnboardingOpen(true);
         }
       }
-    } catch (error) {
-      console.warn('Google Auth popup fallback active:', error);
-      loginDemoUser('Google Customer', '+923009988776', false);
+    } catch (error: any) {
+      console.error('Firebase Google Sign-In error:', error);
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Google Sign-In is disabled in Firebase Console. Please enable Google under Authentication > Sign-in method.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        throw new Error('This domain is not authorized in Firebase Console. Add your domain under Authentication > Settings > Authorized domains.');
+      } else if (error.code === 'auth/invalid-api-key') {
+        throw new Error('Invalid Firebase API key in environment variables.');
+      } else {
+        throw new Error(error.message || 'Google Sign-In failed');
+      }
     } finally {
       setLoading(false);
     }
