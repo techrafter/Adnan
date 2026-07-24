@@ -84,7 +84,7 @@ export const Footer: React.FC = () => {
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} Adnan Super Store ({STORE_LOCATION}). All rights reserved.</p>
           <p className="flex items-center gap-1">
-            Engineered with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" /> for Shve Ada City
+            Engineered with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" /> for Razzar
           </p>
         </div>
 

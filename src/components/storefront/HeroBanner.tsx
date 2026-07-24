@@ -19,9 +19,9 @@ const BANNERS = [
   },
   {
     id: 2,
-    tag: "SHVE ADA EXCLUSIVE",
+    tag: "RAZZAR EXCLUSIVE",
     title: "FRESH FARM PRODUCE & DAIRY DAILY",
-    subtitle: "Direct from local Shve Ada farms straight to your kitchen table in under 30 mins.",
+    subtitle: "Direct from local Razzar farms straight to your kitchen table in under 30 mins.",
     cta: "Shop Produce",
     originalPrice: "Rs. 400",
     discountPrice: "Rs. 320",

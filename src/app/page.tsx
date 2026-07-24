@@ -7,6 +7,7 @@ import { DeliveryThreshold } from '@/components/storefront/DeliveryThreshold';
 import { HeroBanner } from '@/components/storefront/HeroBanner';
 import { CategoryGrid } from '@/components/storefront/CategoryGrid';
 import { ProductGrid } from '@/components/storefront/ProductGrid';
+import { WhyUsSection } from '@/components/storefront/WhyUsSection';
 import { CartDrawer } from '@/components/storefront/CartDrawer';
 import { QuickSearchModal } from '@/components/storefront/QuickSearchModal';
 import { Footer } from '@/components/layout/Footer';
@@ -30,7 +31,7 @@ export default function HomePage() {
           onSelectCategory={(slug) => setSelectedCategory(slug)}
         />
 
-        {/* Delivery threshold bar (Rs. X away from checkout) */}
+        {/* Centered Delivery threshold bar (Rs. X away from checkout) */}
         <DeliveryThreshold />
 
         {/* Hero Promo Banner Slider (Bazaar Select) */}
@@ -48,6 +49,9 @@ export default function HomePage() {
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}
         />
+
+        {/* Why Adnan Super Store is Razzar's Best Grocery App (3 Feature Cards) */}
+        <WhyUsSection />
       </div>
 
       {/* Persistent Cart Drawer */}

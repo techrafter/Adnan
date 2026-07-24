@@ -1,6 +1,6 @@
 import { Category, Product, PaymentAccount, Coupon, Order } from '@/types';
 
-export const STORE_LOCATION = "Shve Ada City";
+export const STORE_LOCATION = "Razzar";
 export const ADMIN_WHATSAPP_NUMBER = "+923348699487"; // Store Admin WhatsApp Number
 
 export const MOCK_CATEGORIES: Category[] = [
