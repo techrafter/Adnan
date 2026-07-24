@@ -9,6 +9,9 @@ echo.
 
 cd /d "%~dp0"
 
+echo Clearing old saved GitHub credentials...
+cmdkey /delete:git:https://github.com 2>nul
+
 echo [1/3] Staging all changed files...
 git add .
 
@@ -17,11 +20,11 @@ if "%commit_msg%"=="" set commit_msg=Auto update %date% %time%
 
 echo.
 echo [2/3] Creating Git Commit: "%commit_msg%"...
-git commit -m "%commit_msg%"
+git commit -m "%commit_msg%" 2>nul
 
 echo.
-echo [3/3] Pushing code to GitHub (https://github.com/techrafter/Adnan.git)...
-git push origin main
+echo [3/3] Pushing code to GitHub for user techrafter...
+git push https://techrafter@github.com/techrafter/Adnan.git main
 
 if %ERRORLEVEL% EQU 0 (
     color 2F
@@ -33,7 +36,8 @@ if %ERRORLEVEL% EQU 0 (
     color 4F
     echo.
     echo ========================================================
-    echo   ERROR: Git Push failed. Please check internet/login.
+    echo   NOTE: If GitHub login window appears, please sign in
+    echo   with your 'techrafter' GitHub account.
     echo ========================================================
 )
 
