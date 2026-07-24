@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { CategoryNav } from '@/components/layout/CategoryNav';
 import { DeliveryThreshold } from '@/components/storefront/DeliveryThreshold';
@@ -11,12 +11,28 @@ import { WhyUsSection } from '@/components/storefront/WhyUsSection';
 import { CartDrawer } from '@/components/storefront/CartDrawer';
 import { QuickSearchModal } from '@/components/storefront/QuickSearchModal';
 import { Footer } from '@/components/layout/Footer';
-import { MOCK_PRODUCTS } from '@/lib/mockData';
+import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mockData';
+import { Category, Product } from '@/types';
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
+
+  const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+
+  // Sync state with LocalStorage for dynamic CMS updates
+  useEffect(() => {
+    const savedCategories = localStorage.getItem('adnan_categories');
+    if (savedCategories) {
+      try { setCategories(JSON.parse(savedCategories)); } catch (e) {}
+    }
+    const savedProducts = localStorage.getItem('adnan_products');
+    if (savedProducts) {
+      try { setProducts(JSON.parse(savedProducts)); } catch (e) {}
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50">
@@ -27,6 +43,7 @@ export default function HomePage() {
 
         {/* Top Category Navigation Pill Bar */}
         <CategoryNav
+          categories={categories}
           selectedCategory={selectedCategory}
           onSelectCategory={(slug) => setSelectedCategory(slug)}
         />
@@ -37,15 +54,16 @@ export default function HomePage() {
         {/* Hero Promo Banner Slider (Bazaar Select) */}
         <HeroBanner />
 
-        {/* Categories Grid (Soft Light Cards) */}
+        {/* Categories Grid with CMS Uploaded Thumbnails */}
         <CategoryGrid
+          categories={categories}
           selectedCategory={selectedCategory}
           onSelectCategory={(slug) => setSelectedCategory(slug)}
         />
 
         {/* Product Catalog Grid with Stock Badges & Add buttons */}
         <ProductGrid
-          products={MOCK_PRODUCTS}
+          products={products}
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}
         />

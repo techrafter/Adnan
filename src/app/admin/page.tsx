@@ -1,23 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ProductManager } from '@/components/admin/ProductManager';
+import { CategoryManager } from '@/components/admin/CategoryManager';
 import { OrderStream } from '@/components/admin/OrderStream';
 import { PaymentConfigManager } from '@/components/admin/PaymentConfigManager';
 import { CouponManager } from '@/components/admin/CouponManager';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { useAuth } from '@/context/AuthContext';
 import {
+  MOCK_CATEGORIES,
   MOCK_PRODUCTS,
   MOCK_ORDERS,
   MOCK_PAYMENT_ACCOUNTS,
   MOCK_COUPONS,
   STORE_LOCATION
 } from '@/lib/mockData';
-import { Product, Order, PaymentAccount, Coupon } from '@/types';
+import { Category, Product, Order, PaymentAccount, Coupon } from '@/types';
 import {
   LayoutDashboard,
   Package,
@@ -33,19 +35,82 @@ import {
   Eye,
   X,
   ArrowLeft,
-  Lock
+  Lock,
+  Layers
 } from 'lucide-react';
 
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'users' | 'payments' | 'coupons'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'categories' | 'orders' | 'users' | 'payments' | 'coupons'>('inventory');
   const [livePreviewOpen, setLivePreviewOpen] = useState(false);
 
-  // State managed in CMS
+  // Dynamic State in CMS
+  const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>(MOCK_PAYMENT_ACCOUNTS);
   const [coupons, setCoupons] = useState<Coupon[]>(MOCK_COUPONS);
+
+  // Sync state with LocalStorage for live persistence
+  useEffect(() => {
+    const savedCategories = localStorage.getItem('adnan_categories');
+    if (savedCategories) {
+      try { setCategories(JSON.parse(savedCategories)); } catch (e) {}
+    }
+    const savedProducts = localStorage.getItem('adnan_products');
+    if (savedProducts) {
+      try { setProducts(JSON.parse(savedProducts)); } catch (e) {}
+    }
+  }, []);
+
+  const saveCategories = (updated: Category[]) => {
+    setCategories(updated);
+    localStorage.setItem('adnan_categories', JSON.stringify(updated));
+  };
+
+  const saveProducts = (updated: Product[]) => {
+    setProducts(updated);
+    localStorage.setItem('adnan_products', JSON.stringify(updated));
+  };
+
+  // Category CRUD Handlers
+  const handleAddCategory = (newCat: Omit<Category, 'id'>) => {
+    const category: Category = {
+      ...newCat,
+      id: `cat-${Date.now()}`
+    };
+    saveCategories([...categories, category]);
+  };
+
+  const handleUpdateCategory = (updatedCat: Category) => {
+    saveCategories(categories.map(c => c.id === updatedCat.id ? updatedCat : c));
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    saveCategories(categories.filter(c => c.id !== id));
+  };
+
+  // Product CRUD Handlers
+  const handleAddProduct = (newP: Omit<Product, 'id'>) => {
+    const product: Product = {
+      ...newP,
+      id: `p-${Date.now()}`,
+    };
+    saveProducts([product, ...products]);
+  };
+
+  const handleUpdateProduct = (updatedP: Product) => {
+    saveProducts(products.map((p) => (p.id === updatedP.id ? updatedP : p)));
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    saveProducts(products.filter((p) => p.id !== id));
+  };
+
+  // Order status CRUD
+  const handleUpdateOrderStatus = (orderId: string, status: Order['status']) => {
+    setOrders(orders.map((o) => (o.id === orderId ? { ...o, status } : o)));
+  };
 
   // Strict Protection: Show loading state
   if (authLoading) {
@@ -104,28 +169,6 @@ export default function AdminPage() {
     );
   }
 
-  // Product CRUD
-  const handleAddProduct = (newP: Omit<Product, 'id'>) => {
-    const product: Product = {
-      ...newP,
-      id: `p-${Date.now()}`,
-    };
-    setProducts([product, ...products]);
-  };
-
-  const handleUpdateProduct = (updatedP: Product) => {
-    setProducts(products.map((p) => (p.id === updatedP.id ? updatedP : p)));
-  };
-
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
-
-  // Order status CRUD
-  const handleUpdateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(orders.map((o) => (o.id === orderId ? { ...o, status } : o)));
-  };
-
   // Stats calculation
   const totalRevenue = orders.reduce((sum, o) => (o.status !== 'Cancelled' ? sum + o.totalAmount : sum), 0);
   const pendingOrders = orders.filter((o) => o.status === 'Pending').length;
@@ -150,7 +193,7 @@ export default function AdminPage() {
               Management & Control Engine
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Real-time inventory manager, user registry, incoming order stream & payment engine for <strong>{STORE_LOCATION}</strong>.
+              Real-time inventory manager, categories catalog, user registry & order stream for <strong>{STORE_LOCATION}</strong>.
             </p>
           </div>
 
@@ -236,6 +279,18 @@ export default function AdminPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab('categories')}
+            className={`px-5 py-3 font-extrabold text-xs rounded-t-2xl transition-all flex items-center gap-2 border-t border-x ${
+              activeTab === 'categories'
+                ? 'bg-white text-brand-700 border-slate-200 shadow-xs'
+                : 'text-slate-500 border-transparent hover:text-slate-900'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Categories Catalog ({categories.length})</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('orders')}
             className={`px-5 py-3 font-extrabold text-xs rounded-t-2xl transition-all flex items-center gap-2 border-t border-x relative ${
               activeTab === 'orders'
@@ -292,9 +347,20 @@ export default function AdminPage() {
           {activeTab === 'inventory' && (
             <ProductManager
               products={products}
+              categories={categories}
               onAddProduct={handleAddProduct}
               onUpdateProduct={handleUpdateProduct}
               onDeleteProduct={handleDeleteProduct}
+            />
+          )}
+
+          {activeTab === 'categories' && (
+            <CategoryManager
+              categories={categories}
+              products={products}
+              onAddCategory={handleAddCategory}
+              onUpdateCategory={handleUpdateCategory}
+              onDeleteCategory={handleDeleteCategory}
             />
           )}
 
