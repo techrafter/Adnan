@@ -103,10 +103,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="hidden sm:flex items-center gap-1 px-3 py-2 text-xs font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 rounded-full transition-colors border border-emerald-300"
+                  className="hidden sm:flex items-center gap-1 px-3.5 py-2 text-xs font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 rounded-full transition-colors border border-emerald-300"
                 >
                   <Shield className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Admin Panel</span>
+                  <span>CMS</span>
                 </Link>
               )}
 
@@ -169,10 +169,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                         {isAdmin && (
                           <Link
                             href="/admin"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition-colors border-t border-slate-100 my-1"
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-50 transition-colors border-t border-slate-100 my-1"
                           >
                             <Shield className="w-4 h-4 text-emerald-600" />
-                            <span>Admin CMS</span>
+                            <span>CMS</span>
                           </Link>
                         )}
                       </div>
