@@ -49,9 +49,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
+          <div className="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-4">
             
-            {/* Logo */}
+            {/* Logo (Fixed Width & No Shrink) */}
             <div className="flex items-center gap-4 sm:gap-6 shrink-0">
               <Link href="/" className="flex items-center gap-2 group">
                 <div className="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md group-hover:scale-105 transition-transform">
@@ -67,14 +67,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
             </div>
 
             {/* Expanded Central Search Bar */}
-            <div className="flex-1 max-w-4xl mx-2 sm:mx-6">
+            <div className="flex-1 max-w-4xl mx-1 sm:mx-4">
               <button
                 onClick={onOpenSearch}
                 className="w-full flex items-center justify-between bg-slate-100/90 hover:bg-slate-100 text-slate-500 rounded-full pl-4 pr-1.5 py-1.5 sm:py-2 text-sm transition-all border border-slate-200/80 hover:border-brand-500/30 shadow-inner group"
               >
                 <div className="flex items-center gap-3 overflow-hidden flex-1">
                   <Search className="w-4 h-4 text-slate-400 group-hover:text-brand-600 transition-colors shrink-0" />
-                  <span className="truncate text-slate-400 text-xs sm:text-sm font-medium">Search fresh fruits, vegetables, spices, oil, milk in Shve Ada...</span>
+                  <span className="truncate text-slate-400 text-xs sm:text-sm font-medium">Search fresh fruits, vegetables, spices, oil, milk in Razzar...</span>
                 </div>
 
                 <div className="bg-brand-600 group-hover:bg-brand-700 text-white rounded-full p-2 flex items-center justify-center shrink-0 transition-colors shadow-xs">
@@ -83,19 +83,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               </button>
             </div>
 
-            {/* Right Action Icons */}
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Right Action Icons (Strict Fixed Layout Container) */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               
               {/* Account / User Button & Dropdown */}
               {user ? (
-                <div className="relative">
+                <div className="relative shrink-0">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
                     className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full hover:bg-slate-100 transition-colors text-slate-700 border border-slate-200/80"
                   >
                     {renderAvatar()}
-                    <span className="hidden lg:inline text-xs font-extrabold text-slate-800 truncate max-w-[100px]">
+                    <span className="hidden lg:inline text-xs font-extrabold text-slate-800 truncate max-w-[90px]">
                       {user.name.split(' ')[0]}
                     </span>
                     <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -169,37 +169,38 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
                 >
                   <User className="w-4 h-4" />
                   <span>Login / Sign Up</span>
                 </button>
               )}
 
-              {/* Live Real-Time Cart Button with Price */}
+              {/* Fixed Width Static Cart Button (Prevents Layout Shifting) */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative px-3.5 py-2 sm:px-4 sm:py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-all active:scale-95 shadow-md flex items-center gap-2.5 border border-emerald-500/30 group"
+                className="relative w-[130px] sm:w-[145px] h-[40px] bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 px-3 border border-emerald-500/30 group shrink-0"
                 aria-label="View Shopping Cart"
               >
-                <div className="relative flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <div className="relative flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
                   {totalItemsInCart > 0 && (
-                    <span className="absolute -top-2.5 -right-2 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm border border-brand-700 animate-bounce">
+                    <span className="absolute -top-2 -right-2 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs border border-brand-700 animate-bounce">
                       {totalItemsInCart}
                     </span>
                   )}
                 </div>
 
-                <div className="flex flex-col items-start leading-tight">
-                  <span className="text-[9px] font-extrabold text-emerald-200 uppercase tracking-widest">
+                <div className="flex flex-col items-start leading-none truncate min-w-0">
+                  <span className="text-[9px] font-extrabold text-emerald-200 uppercase tracking-widest truncate">
                     {totalItemsInCart > 0 ? `${totalItemsInCart} ${totalItemsInCart === 1 ? 'Item' : 'Items'}` : 'Cart'}
                   </span>
-                  <span className="text-xs font-black text-white">
+                  <span className="text-xs font-black text-white truncate">
                     Rs. {subtotal.toLocaleString()}
                   </span>
                 </div>
               </button>
+
             </div>
 
           </div>
