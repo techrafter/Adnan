@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "911759483993",
+    "project_id": "adnan-1c2a7",
+    "storage_bucket": "adnan-1c2a7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911759483993:android:719e97e5a40739c489bd48",
+        "android_client_info": {
+          "package_name": "com.company.adnanweb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwlV536F-7xOxnbELnFtI8Ob8M93XAJi0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

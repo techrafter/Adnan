@@ -1,0 +1,14 @@
+// Top-level build file for Android Studio project
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.2'
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

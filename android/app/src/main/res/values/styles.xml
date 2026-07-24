@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.AdnanSuperStore" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_green</item>
+        <item name="colorPrimaryVariant">@color/brand_dark_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor">@color/brand_green</item>
+    </style>
+</resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Adnan Super Store</string>
+    <string name="store_location">Shve Ada City</string>
+    <string name="default_url">http://localhost:3000</string>
+</resources>
