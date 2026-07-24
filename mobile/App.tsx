@@ -13,7 +13,7 @@ import {
   StatusBar
 } from 'react-native';
 
-const STORE_LOCATION = "Shve Ada City";
+const STORE_LOCATION = "Razzar";
 const ADMIN_WHATSAPP_NUMBER = "+923348699487";
 
 interface Product {
@@ -98,7 +98,7 @@ export default function App() {
       return;
     }
     if (!customerName || !customerPhone || !address) {
-      Alert.alert("Required Fields", "Please fill in your name, phone number, and Shve Ada delivery address.");
+      Alert.alert("Required Fields", `Please fill in your name, phone number, and ${STORE_LOCATION} delivery address.`);
       return;
     }
 
@@ -151,13 +151,13 @@ Order placed via Adnan Super Store Android App.`;
         <View style={styles.banner}>
           <Text style={styles.bannerTag}>ADNAN SELECT</Text>
           <Text style={styles.bannerTitle}>PREMIUM SPICES & GROCERIES</Text>
-          <Text style={styles.bannerSubtitle}>Fast 30-min home delivery in Shve Ada City</Text>
+          <Text style={styles.bannerSubtitle}>Fast 30-min home delivery in {STORE_LOCATION}</Text>
         </View>
 
         {/* Search */}
         <TextInput
           style={styles.searchInput}
-          placeholder="Search groceries, milk, atta in Shve Ada..."
+          placeholder={`Search groceries, milk, atta in ${STORE_LOCATION}...`}
           value={search}
           onChangeText={setSearch}
         />
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justify.content: 'space-between',
     borderBottomWidth: 1,
     borderColor: '#e2e8f0'
   },
@@ -309,8 +309,8 @@ const styles = StyleSheet.create({
   originalPrice: { fontSize: 10, color: '#94a3b8', textDecorationLine: 'line-through', marginLeft: 4 },
   addBtn: { backgroundColor: '#00a950', paddingVertical: 6, borderRadius: 20, alignItems: 'center' },
   addBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 11 },
-  qtyContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#00a950', borderRadius: 20, padding: 2 },
-  qtyBtn: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
+  qtyContainer: { flexDirection: 'row', alignItems: 'center', justify: 'space-between', backgroundColor: '#00a950', borderRadius: 20, padding: 2 },
+  qtyBtn: { width: 24, height: 24, alignItems: 'center', justify: 'center' },
   qtyBtnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 14 },
   qtyText: { color: '#ffffff', fontWeight: 'bold', fontSize: 12 },
   checkoutBox: { backgroundColor: '#ffffff', padding: 16, borderRadius: 16, marginTop: 16, borderWidth: 1, borderColor: '#e2e8f0' },
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   payChipActive: { backgroundColor: '#00a950' },
   payChipText: { fontSize: 11, fontWeight: 'bold', color: '#475569' },
   payChipTextActive: { color: '#ffffff' },
-  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#f1f5f9' },
+  totalRow: { flexDirection: 'row', justify: 'space-between', alignItems: 'center', marginVertical: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#f1f5f9' },
   totalLabel: { fontSize: 14, fontWeight: 'bold', color: '#0f172a' },
   totalValue: { fontSize: 18, fontWeight: 'bold', color: '#00883e' },
   confirmBtn: { backgroundColor: '#00a950', paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
