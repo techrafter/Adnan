@@ -39,6 +39,15 @@ import {
   Layers
 } from 'lucide-react';
 
+import {
+  subscribeToCategories,
+  subscribeToProducts,
+  saveCategoryToFirestore,
+  deleteCategoryFromFirestore,
+  saveProductToFirestore,
+  deleteProductFromFirestore
+} from '@/lib/storeService';
+
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'inventory' | 'categories' | 'orders' | 'users' | 'payments' | 'coupons'>('inventory');
@@ -51,8 +60,15 @@ export default function AdminPage() {
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>(MOCK_PAYMENT_ACCOUNTS);
   const [coupons, setCoupons] = useState<Coupon[]>(MOCK_COUPONS);
 
-  // Sync state with LocalStorage for live persistence
+  // Sync state with Firestore database and LocalStorage
   useEffect(() => {
+    const unsubCat = subscribeToCategories((items) => {
+      if (items && items.length > 0) setCategories(items);
+    });
+    const unsubProd = subscribeToProducts((items) => {
+      if (items && items.length > 0) setProducts(items);
+    });
+
     const savedCategories = localStorage.getItem('adnan_categories');
     if (savedCategories) {
       try { setCategories(JSON.parse(savedCategories)); } catch (e) {}
@@ -69,6 +85,11 @@ export default function AdminPage() {
     if (savedCoupons) {
       try { setCoupons(JSON.parse(savedCoupons)); } catch (e) {}
     }
+
+    return () => {
+      unsubCat();
+      unsubProd();
+    };
   }, []);
 
   const saveCategories = (updated: Category[]) => {
@@ -97,15 +118,21 @@ export default function AdminPage() {
       ...newCat,
       id: `cat-${Date.now()}`
     };
-    saveCategories([...categories, category]);
+    const updated = [...categories, category];
+    saveCategories(updated);
+    saveCategoryToFirestore(category);
   };
 
   const handleUpdateCategory = (updatedCat: Category) => {
-    saveCategories(categories.map(c => c.id === updatedCat.id ? updatedCat : c));
+    const updated = categories.map(c => c.id === updatedCat.id ? updatedCat : c);
+    saveCategories(updated);
+    saveCategoryToFirestore(updatedCat);
   };
 
   const handleDeleteCategory = (id: string) => {
-    saveCategories(categories.filter(c => c.id !== id));
+    const updated = categories.filter(c => c.id !== id);
+    saveCategories(updated);
+    deleteCategoryFromFirestore(id);
   };
 
   // Product CRUD Handlers
@@ -114,15 +141,21 @@ export default function AdminPage() {
       ...newP,
       id: `p-${Date.now()}`,
     };
-    saveProducts([product, ...products]);
+    const updated = [product, ...products];
+    saveProducts(updated);
+    saveProductToFirestore(product);
   };
 
   const handleUpdateProduct = (updatedP: Product) => {
-    saveProducts(products.map((p) => (p.id === updatedP.id ? updatedP : p)));
+    const updated = products.map((p) => (p.id === updatedP.id ? updatedP : p));
+    saveProducts(updated);
+    saveProductToFirestore(updatedP);
   };
 
   const handleDeleteProduct = (id: string) => {
-    saveProducts(products.filter((p) => p.id !== id));
+    const updated = products.filter((p) => p.id !== id);
+    saveProducts(updated);
+    deleteProductFromFirestore(id);
   };
 
   // Order status CRUD

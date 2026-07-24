@@ -3,29 +3,38 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, X, ShoppingBag, ArrowRight } from 'lucide-react';
-import { MOCK_PRODUCTS } from '@/lib/mockData';
+import { Search, X, ShoppingBag } from 'lucide-react';
+import { Product } from '@/types';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import { useCart } from '@/context/CartContext';
+import { STORE_LOCATION } from '@/lib/mockData';
 
 interface QuickSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  products?: Product[];
 }
 
-export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onClose }) => {
+export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onClose, products = [] }) => {
   const [query, setQuery] = useState('');
   const { addToCart } = useCart();
+  const [activeProducts, setActiveProducts] = useState<Product[]>(products);
+
+  useEffect(() => {
+    if (products && products.length > 0) {
+      setActiveProducts(products);
+    } else {
+      try {
+        const saved = localStorage.getItem('adnan_products');
+        if (saved) {
+          setActiveProducts(JSON.parse(saved));
+        }
+      } catch (e) {}
+    }
+  }, [products, isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        if (isOpen) onClose();
-        else {
-          // Trigger open handled by parent
-        }
-      }
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
@@ -37,12 +46,12 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onCl
   if (!isOpen) return null;
 
   const results = query.trim()
-    ? MOCK_PRODUCTS.filter(
+    ? activeProducts.filter(
         (p) =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           p.category.toLowerCase().includes(query.toLowerCase())
       )
-    : MOCK_PRODUCTS.slice(0, 4);
+    : activeProducts.slice(0, 5);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 md:p-20">
@@ -54,13 +63,13 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onCl
           <input
             type="text"
             autoFocus
-            placeholder="Search groceries, spices, milk, atta in Shve Ada..."
+            placeholder={`Search groceries, spices, milk, atta in ${STORE_LOCATION}...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent text-slate-800 text-sm font-medium focus:outline-none placeholder-slate-400"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="text-slate-400 hover:text-slate-600 text-xs">
+            <button onClick={() => setQuery('')} className="text-slate-400 hover:text-slate-600 text-xs font-semibold">
               Clear
             </button>
           )}

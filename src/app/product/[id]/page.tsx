@@ -15,7 +15,19 @@ import { ArrowLeft, Plus, Minus, ShieldCheck, MapPin, Truck, Flame } from 'lucid
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params?.id as string;
-  const product = MOCK_PRODUCTS.find((p) => p.id === productId) || MOCK_PRODUCTS[0];
+
+  const [productsList, setProductsList] = React.useState<Product[]>(MOCK_PRODUCTS);
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('adnan_products');
+      if (saved) {
+        setProductsList(JSON.parse(saved));
+      }
+    } catch (e) {}
+  }, []);
+
+  const product = productsList.find((p) => p.id === productId) || productsList[0] || MOCK_PRODUCTS[0];
 
   const { addToCart, updateQuantity, getItemQuantity, setIsCartOpen } = useCart();
   const quantityInCart = getItemQuantity(product.id);

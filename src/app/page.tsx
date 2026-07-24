@@ -16,6 +16,8 @@ import { Footer } from '@/components/layout/Footer';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mockData';
 import { Category, Product } from '@/types';
 
+import { subscribeToCategories, subscribeToProducts } from '@/lib/storeService';
+
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -25,8 +27,15 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
 
-  // Load custom admin saved categories and products from LocalStorage
+  // Sync state with Firestore database real-time listeners and LocalStorage
   useEffect(() => {
+    const unsubCat = subscribeToCategories((items) => {
+      if (items && items.length > 0) setCategories(items);
+    });
+    const unsubProd = subscribeToProducts((items) => {
+      if (items && items.length > 0) setProducts(items);
+    });
+
     try {
       const savedCategories = localStorage.getItem('adnan_categories');
       if (savedCategories) {
@@ -39,6 +48,11 @@ export default function HomePage() {
     } catch (e) {
       console.warn('Failed to load saved catalog state:', e);
     }
+
+    return () => {
+      unsubCat();
+      unsubProd();
+    };
   }, []);
 
   return (
