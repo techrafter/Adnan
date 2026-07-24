@@ -24,7 +24,6 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string, name: string, phone: string, address: string) => Promise<void>;
-  loginDemoUser: (name: string, phone: string, isAdmin?: boolean) => void;
   logout: () => Promise<void>;
   updateProfileData: (data: Partial<UserProfile>) => Promise<void>;
   addAddress: (address: Address) => Promise<void>;
@@ -55,14 +54,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               name: firebaseUser.displayName || data.name || 'Customer',
               email: firebaseUser.email || data.email,
               photoURL: firebaseUser.photoURL || data.photoURL,
+              // Admin role strictly driven by Firestore database field isAdmin == true
+              isAdmin: Boolean(data.isAdmin)
             });
 
-            // If phone or address is missing, trigger onboarding modal
             if (!data.phone || !data.address) {
               setOnboardingOpen(true);
             }
           } else {
-            // New user profile creation
+            // New user profile initialization (Default isAdmin is ALWAYS false)
             const newProfile: UserProfile = {
               uid: firebaseUser.uid,
               name: firebaseUser.displayName || 'Customer',
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               address: '',
               city: 'Shve Ada City',
               photoURL: firebaseUser.photoURL || '',
-              isAdmin: firebaseUser.email === 'admin@adnansuperstore.com',
+              isAdmin: false, // Strict: Regular signups are never Admin
               isBanned: false,
               createdAt: new Date().toISOString(),
               totalOrders: 0,
@@ -80,26 +80,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             await setDoc(userDocRef, newProfile);
             setUser(newProfile);
-            setOnboardingOpen(true); // Open onboarding to fill delivery details
+            setOnboardingOpen(true);
           }
         } catch (e) {
           console.warn('Firestore connection fallback active:', e);
-          const fallbackProfile: UserProfile = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName || 'Customer',
-            email: firebaseUser.email || '',
-            phone: firebaseUser.phoneNumber || '+923001234567',
-            address: 'Main Street, Shve Ada City',
-            city: 'Shve Ada City',
-            photoURL: firebaseUser.photoURL || '',
-            isAdmin: firebaseUser.email === 'admin@adnansuperstore.com' || false,
-            createdAt: new Date().toISOString(),
-            addresses: []
-          };
-          setUser(fallbackProfile);
+          const savedUser = localStorage.getItem('adnan_user');
+          if (savedUser) {
+            try {
+              setUser(JSON.parse(savedUser));
+            } catch {
+              setUser(null);
+            }
+          }
         }
       } else {
-        // Fallback to local session if present, or null
         const savedUser = localStorage.getItem('adnan_user');
         if (savedUser) {
           try {
@@ -120,12 +114,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async () => {
     setLoading(true);
     try {
-      // Primary: Google Auth Popup
       let result;
       try {
         result = await signInWithPopup(auth, googleProvider);
       } catch (popupError: any) {
-        // Fallback: If popup was blocked, try redirect
         if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
           console.log('Popup blocked or closed, attempting redirect mode...');
           await signInWithRedirect(auth, googleProvider);
@@ -147,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           address: '',
           city: 'Shve Ada City',
           photoURL: fbUser.photoURL || '',
-          isAdmin: fbUser.email === 'admin@adnansuperstore.com',
+          isAdmin: false, // Strict: Regular signups are never Admin
           isBanned: false,
           createdAt: new Date().toISOString(),
           totalOrders: 0,
@@ -162,7 +154,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...existingData,
           name: fbUser.displayName || existingData.name,
           email: fbUser.email || existingData.email,
-          photoURL: fbUser.photoURL || existingData.photoURL
+          photoURL: fbUser.photoURL || existingData.photoURL,
+          isAdmin: Boolean(existingData.isAdmin)
         };
         setUser(updatedUser);
         if (!existingData.phone || !existingData.address) {
@@ -186,24 +179,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
       await signInWithEmailAndPassword(auth, email, pass);
     } catch (error: any) {
-      console.warn('Firebase Email sign in error:', error.message);
-      if (email.includes('admin')) {
-        loginDemoUser('Admin Storekeeper', '+923348699487', true);
-      } else {
-        loginDemoUser('Verified User', '+923001234567', false);
-      }
+      console.error('Firebase Email sign in error:', error.message);
+      throw new Error(error.message || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
   };
 
   const signUpWithEmail = async (email: string, pass: string, name: string, phone: string, address: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(res.user, { displayName: name });
       
@@ -214,7 +203,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone,
         address,
         city: 'Shve Ada City',
-        isAdmin: false,
+        isAdmin: false, // Strict: Regular signups are never Admin
         isBanned: false,
         createdAt: new Date().toISOString(),
         totalOrders: 0,
@@ -225,45 +214,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       await setDoc(doc(db, 'users', res.user.uid), newProfile);
       setUser(newProfile);
-    } catch (error) {
-      console.warn('Email sign up fallback active:', error);
-      const demoUser: UserProfile = {
-        uid: `uid-${Date.now()}`,
-        name,
-        email,
-        phone,
-        address,
-        city: 'Shve Ada City',
-        isAdmin: false,
-        createdAt: new Date().toISOString(),
-        addresses: [
-          { id: 'addr-1', label: 'Home', address, city: 'Shve Ada City', isDefault: true }
-        ]
-      };
-      setUser(demoUser);
-      localStorage.setItem('adnan_user', JSON.stringify(demoUser));
+    } catch (error: any) {
+      console.error('Email sign up error:', error);
+      throw new Error(error.message || 'Failed to create account.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const loginDemoUser = (name: string, phone: string, isAdmin = false) => {
-    const newUser: UserProfile = {
-      uid: `uid-${Date.now()}`,
-      name: name || 'Customer',
-      phone: phone || '+923001234567',
-      address: 'Main Bazaar, Shve Ada City',
-      city: 'Shve Ada City',
-      isAdmin,
-      isBanned: false,
-      createdAt: new Date().toISOString(),
-      totalOrders: 1,
-      addresses: [
-        { id: 'addr-default', label: 'Home', address: 'Main Bazaar, Shve Ada City', city: 'Shve Ada City', isDefault: true }
-      ]
-    };
-    setUser(newUser);
-    localStorage.setItem('adnan_user', JSON.stringify(newUser));
   };
 
   const logout = async () => {
@@ -278,13 +234,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfileData = async (data: Partial<UserProfile>) => {
     if (!user) return;
-    const updated = { ...user, ...data };
+    // Strip isAdmin from data updates to prevent client-side elevation
+    const { isAdmin, ...safeData } = data;
+    const updated = { ...user, ...safeData };
     setUser(updated);
     localStorage.setItem('adnan_user', JSON.stringify(updated));
 
     try {
       const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, data);
+      await updateDoc(userRef, safeData);
     } catch (e) {
       console.warn('Firestore profile update fallback:', e);
     }
@@ -318,13 +276,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         loading,
-        isAdmin: user?.isAdmin || false,
+        isAdmin: Boolean(user?.isAdmin),
         onboardingOpen,
         setOnboardingOpen,
         loginWithGoogle,
         loginWithEmail,
         signUpWithEmail,
-        loginDemoUser,
         logout,
         updateProfileData,
         addAddress,

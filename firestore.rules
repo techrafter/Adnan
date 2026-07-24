@@ -2,9 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if request is from an authenticated admin
+    // Helper function to check if request is from an authenticated admin in Firestore users collection
     function isAdmin() {
-      return request.auth != null && (request.auth.token.admin == true || request.auth.token.email == 'admin@adnansuperstore.com');
+      return request.auth != null && 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
     }
 
     // Helper function to check if user owns the document
@@ -12,9 +14,16 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
-    // User Profile collection: users can read & write their own profile; Admins can manage all users
+    // User Profile collection rules:
+    // 1. Anyone logged in can read their own profile; Admins can read all profiles.
+    // 2. New user registration: isOwner can create document ONLY if isAdmin is set to false.
+    // 3. User update: isOwner can update their document ONLY if isAdmin field remains unchanged.
+    // 4. Admin write: Admins can update/delete any profile, including changing isAdmin status.
     match /users/{userId} {
-      allow read, write: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if (isOwner(userId) && request.resource.data.isAdmin == false) || isAdmin();
+      allow update: if (isOwner(userId) && request.resource.data.isAdmin == resource.data.isAdmin) || isAdmin();
+      allow delete: if isAdmin();
     }
 
     // Public read for products, category catalog, active payment accounts, and coupons
@@ -38,7 +47,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Customer Orders: Authenticated users can create orders; Admins can manage all orders; Users can read their own orders
+    // Customer Orders: Anyone can create orders; Admins can manage all orders; Users can read their own orders
     match /orders/{orderId} {
       allow create: if true;
       allow read: if isAdmin() || (request.auth != null && (resource.data.userId == request.auth.uid || resource.data.customerPhone == request.auth.token.phone_number));

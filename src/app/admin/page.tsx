@@ -9,6 +9,7 @@ import { OrderStream } from '@/components/admin/OrderStream';
 import { PaymentConfigManager } from '@/components/admin/PaymentConfigManager';
 import { CouponManager } from '@/components/admin/CouponManager';
 import { UserManagement } from '@/components/admin/UserManagement';
+import { useAuth } from '@/context/AuthContext';
 import {
   MOCK_PRODUCTS,
   MOCK_ORDERS,
@@ -26,13 +27,17 @@ import {
   Users,
   ExternalLink,
   ShieldCheck,
+  ShieldAlert,
   TrendingUp,
   AlertCircle,
   Eye,
-  X
+  X,
+  ArrowLeft,
+  Lock
 } from 'lucide-react';
 
 export default function AdminPage() {
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'users' | 'payments' | 'coupons'>('inventory');
   const [livePreviewOpen, setLivePreviewOpen] = useState(false);
 
@@ -41,6 +46,63 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>(MOCK_PAYMENT_ACCOUNTS);
   const [coupons, setCoupons] = useState<Coupon[]>(MOCK_COUPONS);
+
+  // Strict Protection: Show loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex flex-col justify-between bg-slate-50">
+        <Header onOpenSearch={() => {}} />
+        <main className="max-w-md mx-auto my-20 p-8 bg-white rounded-3xl border border-slate-200 text-center shadow-md">
+          <ShieldCheck className="w-12 h-12 text-brand-600 mx-auto mb-3 animate-pulse" />
+          <h2 className="text-lg font-bold text-slate-800">Verifying Admin Permissions...</h2>
+          <p className="text-xs text-slate-500 mt-1">Checking Firebase user role database record.</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Strict Protection: If not logged in OR not Admin, block access completely!
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col justify-between bg-slate-100">
+        <Header onOpenSearch={() => {}} />
+        <main className="max-w-lg mx-auto my-16 px-4">
+          <div className="bg-white p-8 rounded-3xl border border-red-200 shadow-xl text-center space-y-4">
+            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+              <Lock className="w-8 h-8" />
+            </div>
+
+            <div>
+              <span className="text-[10px] font-black tracking-widest text-red-600 uppercase bg-red-50 px-3 py-1 rounded-full border border-red-200">
+                Unauthorized Access Blocked
+              </span>
+              <h2 className="text-2xl font-black text-slate-900 mt-3">Admin Permissions Required</h2>
+              <p className="text-xs text-slate-500 mt-2">
+                This CMS dashboard is strictly restricted. Only users with <strong className="text-slate-800">isAdmin = true</strong> in Firebase Firestore can access store management.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-xs space-y-1 text-slate-600">
+              <p><strong>Your Account:</strong> {user ? user.email || user.phone : 'Not Signed In'}</p>
+              <p><strong>Status:</strong> <span className="text-red-600 font-bold">Regular Customer Account</span></p>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                href="/"
+                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-md transition-all inline-flex items-center justify-center gap-2 text-xs"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Storefront</span>
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   // Product CRUD
   const handleAddProduct = (newP: Omit<Product, 'id'>) => {

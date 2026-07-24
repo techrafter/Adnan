@@ -17,7 +17,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     loginWithGoogle, 
     loginWithEmail, 
     signUpWithEmail, 
-    loginDemoUser, 
     updateProfileData 
   } = useAuth();
 
@@ -100,15 +99,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     } finally {
       setGoogleLoading(false);
     }
-  };
-
-  const handleDemoLogin = (isAdmin: boolean) => {
-    if (isAdmin) {
-      loginDemoUser('Admin Storekeeper', '+923348699487', true);
-    } else {
-      loginDemoUser('Ali Raza', '+923001234567', false);
-    }
-    onClose();
   };
 
   // If onboarding is triggered
@@ -367,25 +357,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           >
             {mode === 'signin' ? "Don't have an account? Sign Up" : 'Already registered? Sign In'}
           </button>
-        </div>
-
-        {/* Quick Demo Credentials Switch */}
-        <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Quick Demo Access:</span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleDemoLogin(false)}
-              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors text-[11px]"
-            >
-              Customer
-            </button>
-            <button
-              onClick={() => handleDemoLogin(true)}
-              className="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-lg transition-colors text-[11px]"
-            >
-              Admin
-            </button>
-          </div>
         </div>
 
       </div>
