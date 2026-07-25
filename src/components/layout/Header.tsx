@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, ShoppingBag, User, Shield, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -9,16 +10,25 @@ import { AuthModal } from '@/components/auth/AuthModal';
 import { STORE_LOCATION } from '@/lib/mockData';
 
 interface HeaderProps {
-  onOpenSearch: () => void;
+  onOpenSearch?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
+export const Header: React.FC<HeaderProps> = () => {
+  const router = useRouter();
   const { cart, setIsCartOpen, subtotal } = useCart();
   const { user, isAdmin, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/browse?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
 
   // User avatar helper
   const renderAvatar = () => {
@@ -65,22 +75,26 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               </Link>
             </div>
 
-            {/* Compact Mobile & Desktop Search Bar */}
-            <div className="flex-1 max-w-4xl mx-1 sm:mx-4">
-              <button
-                onClick={onOpenSearch}
-                className="w-full flex items-center justify-between bg-slate-100 hover:bg-slate-100/80 text-slate-500 rounded-full pl-3 sm:pl-4 pr-1 sm:pr-1.5 py-1 sm:py-2 text-xs sm:text-sm transition-all border border-slate-200/80 shadow-inner group"
-              >
-                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden flex-1">
-                  <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 group-hover:text-brand-600 transition-colors shrink-0" />
-                  <span className="truncate text-slate-400 text-xs font-medium">Search milk, atta, spices in {STORE_LOCATION}...</span>
-                </div>
-
-                <div className="bg-brand-600 text-white rounded-full p-1.5 sm:p-2 flex items-center justify-center shrink-0 shadow-xs">
+            {/* Direct Interactive Search Bar Form */}
+            <form onSubmit={handleSearchSubmit} className="flex-1 max-w-4xl mx-1 sm:mx-4">
+              <div className="relative flex items-center bg-slate-100 focus-within:bg-white text-slate-700 rounded-full pl-3 sm:pl-4 pr-1 sm:pr-1.5 py-1 sm:py-1.5 border border-slate-200 focus-within:border-brand-500 shadow-inner transition-all">
+                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 shrink-0 mr-2" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={`Search ads in ${STORE_LOCATION}...`}
+                  className="w-full bg-transparent text-xs sm:text-sm text-slate-900 focus:outline-none placeholder:text-slate-400 font-medium"
+                />
+                <button
+                  type="submit"
+                  className="bg-brand-600 hover:bg-brand-700 text-white rounded-full p-1.5 sm:p-2 flex items-center justify-center shrink-0 shadow-xs transition-colors cursor-pointer"
+                  title="Search Ads"
+                >
                   <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-              </button>
-            </div>
+                </button>
+              </div>
+            </form>
 
             {/* Right Desktop Actions (Hidden/Compact on Mobile due to MobileBottomNav) */}
             <div className="hidden sm:flex items-center gap-2 sm:gap-3 shrink-0">

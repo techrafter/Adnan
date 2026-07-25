@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
-import { CategoryNav } from '@/components/layout/CategoryNav';
 import { DeliveryThreshold } from '@/components/storefront/DeliveryThreshold';
 import { HeroBanner } from '@/components/storefront/HeroBanner';
 import { CategoryGrid } from '@/components/storefront/CategoryGrid';
@@ -28,17 +27,6 @@ export default function HomePage() {
       <div>
         {/* Main Sticky Header */}
         <Header onOpenSearch={() => setIsSearchModalOpen(true)} />
-
-        {/* Top Category Navigation Pill Bar */}
-        <CategoryNav
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={(slug) => {
-            setSelectedCategory(slug);
-            const el = document.getElementById(`category-section-${slug}`);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-        />
 
         {/* Centered Delivery threshold bar (Rs. X away from checkout) */}
         <DeliveryThreshold />

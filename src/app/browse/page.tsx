@@ -17,10 +17,11 @@ import { ArrowLeft, ArrowUpDown, Layers, Search } from 'lucide-react';
 function BrowseContent() {
   const searchParams = useSearchParams();
   const categorySlugParam = searchParams.get('category') || 'all';
+  const urlSearchQuery = searchParams.get('search') || searchParams.get('q') || '';
 
   const { categories, products } = useCatalog();
   const [selectedCategory, setSelectedCategory] = useState<string>(categorySlugParam);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>(urlSearchQuery);
   const [sortBy, setSortBy] = useState<'featured' | 'low-high' | 'high-low' | 'discount'>('featured');
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
@@ -31,6 +32,12 @@ function BrowseContent() {
       setSelectedCategory(categorySlugParam);
     }
   }, [categorySlugParam]);
+
+  useEffect(() => {
+    if (urlSearchQuery) {
+      setSearchQuery(urlSearchQuery);
+    }
+  }, [urlSearchQuery]);
 
   // Find active category details
   const activeCategoryObj = useMemo(() => {
