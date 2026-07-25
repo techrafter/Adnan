@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, ShoppingBag, User, Shield, LogOut, Package, Map, Settings, ChevronDown } from 'lucide-react';
+import { Search, ShoppingBag, User, Shield, LogOut, Package, Map, Settings, ChevronDown, ExternalLink } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -134,7 +134,10 @@ export const Header: React.FC<HeaderProps> = () => {
 
                   {/* Dropdown Menu */}
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div
+                      onMouseDown={(e) => e.preventDefault()}
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    >
                       <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
                         <p className="text-xs font-black text-slate-900 truncate">{user.name}</p>
                         <p className="text-[11px] text-slate-500 truncate">{user.email || user.phone}</p>
@@ -143,6 +146,7 @@ export const Header: React.FC<HeaderProps> = () => {
                       <div className="py-1">
                         <Link
                           href="/profile"
+                          onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
                         >
                           <User className="w-4 h-4 text-slate-400" />
@@ -151,6 +155,7 @@ export const Header: React.FC<HeaderProps> = () => {
 
                         <Link
                           href="/profile?tab=orders"
+                          onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
                         >
                           <Package className="w-4 h-4 text-slate-400" />
@@ -159,6 +164,7 @@ export const Header: React.FC<HeaderProps> = () => {
 
                         <Link
                           href="/profile?tab=addresses"
+                          onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
                         >
                           <Map className="w-4 h-4 text-slate-400" />
@@ -167,21 +173,28 @@ export const Header: React.FC<HeaderProps> = () => {
 
                         <Link
                           href="/profile?tab=settings"
+                          onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
                         >
                           <Settings className="w-4 h-4 text-slate-400" />
                           <span>Account Settings</span>
                         </Link>
 
-                        {/* Admin CMS option inside Profile Dropdown only */}
+                        {/* Admin CMS option - Opens Admin Panel in a NEW SEPARATE TAB */}
                         {isAdmin && (
-                          <Link
+                          <a
                             href="/admin"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-50 transition-colors border-t border-slate-100 my-1"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100 transition-colors border-t border-slate-100 my-1 cursor-pointer"
                           >
-                            <Shield className="w-4 h-4 text-emerald-600" />
-                            <span>CMS</span>
-                          </Link>
+                            <div className="flex items-center gap-2.5">
+                              <Shield className="w-4 h-4 text-emerald-600" />
+                              <span>Admin CMS Panel</span>
+                            </div>
+                            <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+                          </a>
                         )}
                       </div>
 

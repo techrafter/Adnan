@@ -79,25 +79,35 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenSearch, 
       </button>
 
       {/* 5. Account / Settings (or Admin CMS) */}
-      <button
-        onClick={() => {
-          if (!user) {
-            onOpenAuth();
-          } else {
-            router.push('/profile');
-          }
-        }}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all relative ${
-          pathname === '/profile' || pathname === '/admin' ? 'text-brand-600 font-extrabold scale-105' : 'text-slate-500 hover:text-slate-900'
-        }`}
-      >
-        {isAdmin ? (
+      {isAdmin ? (
+        <a
+          href="/admin"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all relative ${
+            pathname === '/admin' ? 'text-emerald-600 font-extrabold scale-105' : 'text-slate-500 hover:text-emerald-600'
+          }`}
+        >
           <Shield className="w-5 h-5 mb-0.5 text-emerald-600" />
-        ) : (
+          <span>CMS Panel</span>
+        </a>
+      ) : (
+        <button
+          onClick={() => {
+            if (!user) {
+              onOpenAuth();
+            } else {
+              router.push('/profile');
+            }
+          }}
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all relative ${
+            pathname === '/profile' ? 'text-brand-600 font-extrabold scale-105' : 'text-slate-500 hover:text-slate-900'
+          }`}
+        >
           <User className="w-5 h-5 mb-0.5" />
-        )}
-        <span>{isAdmin ? 'CMS' : 'Account'}</span>
-      </button>
+          <span>Account</span>
+        </button>
+      )}
 
     </nav>
   );
