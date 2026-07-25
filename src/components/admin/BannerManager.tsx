@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Banner, Category } from '@/types';
-import { Plus, Edit2, Trash2, Check, X, UploadCloud, Calendar, Clock, Link as LinkIcon, Image as ImageIcon, Eye } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, UploadCloud, Clock, Image as ImageIcon } from 'lucide-react';
 import { getOptimizedImageUrl, uploadToCloudinary } from '@/lib/cloudinary';
 
 interface BannerManagerProps {
@@ -25,11 +25,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
 
   // Form state
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
   const [image, setImage] = useState('');
-  const [targetCategory, setTargetCategory] = useState('');
-  const [targetUrl, setTargetUrl] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [isForever, setIsForever] = useState(true);
   const [expiresAt, setExpiresAt] = useState('');
@@ -37,11 +33,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
 
   const openCreateModal = () => {
     setEditingBanner(null);
-    setTitle('');
-    setSubtitle('');
     setImage('');
-    setTargetCategory('');
-    setTargetUrl('');
     setIsActive(true);
     setIsForever(true);
     setExpiresAt('');
@@ -50,12 +42,8 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
 
   const openEditModal = (b: Banner) => {
     setEditingBanner(b);
-    setTitle(b.title || '');
-    setSubtitle(b.subtitle || '');
     setImage(b.image || '');
-    setTargetCategory(b.targetCategory || '');
-    setTargetUrl(b.targetUrl || '');
-    setIsActive(b.isActive);
+    setIsActive(b.isActive !== false);
     setIsForever(b.isForever ?? !b.expiresAt);
     setExpiresAt(b.expiresAt || '');
     setIsModalOpen(true);
@@ -83,11 +71,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
     }
 
     const payload = {
-      title: title.trim(),
-      subtitle: subtitle.trim(),
       image: image.trim(),
-      targetCategory,
-      targetUrl: targetUrl.trim(),
       isActive,
       isForever,
       expiresAt: isForever ? undefined : expiresAt,
@@ -114,7 +98,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
         <div>
           <h3 className="text-base font-extrabold text-slate-900">Index Storefront Banners ({banners.length})</h3>
           <p className="text-xs text-slate-500">
-            Upload custom promotional banners that auto-slide every 5 seconds on the homepage.
+            Upload custom promotional banners that auto-slide on the homepage.
           </p>
         </div>
 
@@ -127,96 +111,6 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
         </button>
       </div>
 
-      {/* Banners Grid List */}
-      {banners.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {banners.map((b) => {
-            const isExpired = checkIsExpired(b);
-
-            return (
-              <div
-                key={b.id}
-                className={`bg-white rounded-2xl border transition-all overflow-hidden shadow-xs flex flex-col ${
-                  isExpired ? 'border-red-200 bg-red-50/30' : 'border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                {/* Banner Image Preview */}
-                <div className="relative w-full h-40 bg-slate-900 overflow-hidden group">
-                  <Image
-                    src={getOptimizedImageUrl(b.image, 600)}
-                    alt={b.title || 'Store Banner'}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-                    {isExpired ? (
-                      <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
-                        Expired
-                      </span>
-                    ) : b.isActive ? (
-                      <span className="bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
-                        Active Banner
-                      </span>
-                    ) : (
-                      <span className="bg-slate-700 text-slate-200 text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
-                        Disabled
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Banner Info */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                  <div>
-                    <h4 className="font-extrabold text-sm text-slate-900 line-clamp-1">
-                      {b.title || 'Promotional Banner'}
-                    </h4>
-                    {b.subtitle && (
-                      <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{b.subtitle}</p>
-                    )}
-
-                    <div className="mt-2 text-[11px] space-y-1 text-slate-600">
-                      {b.targetCategory && (
-                        <div className="flex items-center gap-1.5 font-semibold text-brand-700">
-                          <LinkIcon className="w-3 h-3" />
-                          <span>Link: Category ({b.targetCategory})</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-1.5 text-slate-500">
-                        <Clock className="w-3 h-3" />
-                        <span>
-                          {b.isForever || !b.expiresAt
-                            ? 'Never Expires (Forever)'
-                            : `Expires: ${new Date(b.expiresAt).toLocaleString()}`}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <button
-                      onClick={() => openEditModal(b)}
-                      className="text-xs font-bold text-slate-600 hover:text-brand-600 flex items-center gap-1 cursor-pointer"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      <span>Edit Details</span>
-                    </button>
-
-                    <button
-                      onClick={() => onDeleteBanner(b.id)}
-                      className="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       {/* Banners Grid List */}
       {banners.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
