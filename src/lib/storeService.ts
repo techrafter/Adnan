@@ -135,7 +135,8 @@ export async function saveBannerToFirestore(banner: Banner) {
   try {
     await setDoc(doc(db, 'banners', banner.id), banner, { merge: true });
   } catch (e) {
-    console.warn('Saved banner locally:', e);
+    console.error('Error saving banner to Firestore:', e);
+    throw e;
   }
 }
 
@@ -144,6 +145,7 @@ export async function deleteBannerFromFirestore(id: string) {
   try {
     await deleteDoc(doc(db, 'banners', id));
   } catch (e) {
-    console.warn('Deleted banner locally:', e);
+    console.error('Error deleting banner from Firestore:', e);
+    throw e;
   }
 }

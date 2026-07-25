@@ -63,7 +63,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!image.trim()) {
       alert('Please upload a banner image or paste an image URL.');
@@ -77,12 +77,17 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
       expiresAt: isForever ? undefined : expiresAt,
     };
 
-    if (editingBanner) {
-      onUpdateBanner({ ...editingBanner, ...payload });
-    } else {
-      onAddBanner(payload);
+    try {
+      if (editingBanner) {
+        await onUpdateBanner({ ...editingBanner, ...payload });
+      } else {
+        await onAddBanner(payload);
+      }
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Failed to save banner:', err);
+      alert('Failed to save banner to database. Please check your connection.');
     }
-    setIsModalOpen(false);
   };
 
   const checkIsExpired = (b: Banner) => {
