@@ -122,7 +122,6 @@ export const Header: React.FC<HeaderProps> = () => {
                 <div className="relative shrink-0">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
                     className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full hover:bg-slate-100 transition-colors text-slate-700 border border-slate-200/80 cursor-pointer"
                   >
                     {renderAvatar()}
@@ -134,80 +133,88 @@ export const Header: React.FC<HeaderProps> = () => {
 
                   {/* Dropdown Menu */}
                   {isDropdownOpen && (
-                    <div
-                      onMouseDown={(e) => e.preventDefault()}
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
-                    >
-                      <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
-                        <p className="text-xs font-black text-slate-900 truncate">{user.name}</p>
-                        <p className="text-[11px] text-slate-500 truncate">{user.email || user.phone}</p>
-                      </div>
+                    <>
+                      {/* Transparent backdrop overlay to handle click-outside close */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsDropdownOpen(false)}
+                      />
 
-                      <div className="py-1">
-                        <Link
-                          href="/profile"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
-                        >
-                          <User className="w-4 h-4 text-slate-400" />
-                          <span>My Profile</span>
-                        </Link>
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
+                          <p className="text-xs font-black text-slate-900 truncate">{user.name}</p>
+                          <p className="text-[11px] text-slate-500 truncate">{user.email || user.phone}</p>
+                        </div>
 
-                        <Link
-                          href="/profile?tab=orders"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
-                        >
-                          <Package className="w-4 h-4 text-slate-400" />
-                          <span>Order History</span>
-                        </Link>
-
-                        <Link
-                          href="/profile?tab=addresses"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
-                        >
-                          <Map className="w-4 h-4 text-slate-400" />
-                          <span>Saved Addresses</span>
-                        </Link>
-
-                        <Link
-                          href="/profile?tab=settings"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
-                        >
-                          <Settings className="w-4 h-4 text-slate-400" />
-                          <span>Account Settings</span>
-                        </Link>
-
-                        {/* Admin CMS option - Opens Admin Panel in a NEW SEPARATE TAB */}
-                        {isAdmin && (
-                          <a
-                            href="/admin"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <div className="py-1">
+                          <Link
+                            href="/profile"
                             onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100 transition-colors border-t border-slate-100 my-1 cursor-pointer"
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
                           >
-                            <div className="flex items-center gap-2.5">
-                              <Shield className="w-4 h-4 text-emerald-600" />
-                              <span>Admin CMS Panel</span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
-                          </a>
-                        )}
-                      </div>
+                            <User className="w-4 h-4 text-slate-400" />
+                            <span>My Profile</span>
+                          </Link>
 
-                      <div className="border-t border-slate-100 pt-1">
-                        <button
-                          onClick={logout}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span>Log Out</span>
-                        </button>
+                          <Link
+                            href="/profile?tab=orders"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          >
+                            <Package className="w-4 h-4 text-slate-400" />
+                            <span>Order History</span>
+                          </Link>
+
+                          <Link
+                            href="/profile?tab=addresses"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          >
+                            <Map className="w-4 h-4 text-slate-400" />
+                            <span>Saved Addresses</span>
+                          </Link>
+
+                          <Link
+                            href="/profile?tab=settings"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          >
+                            <Settings className="w-4 h-4 text-slate-400" />
+                            <span>Account Settings</span>
+                          </Link>
+
+                          {/* Admin CMS option - Opens Admin Panel in a NEW SEPARATE TAB */}
+                          {isAdmin && (
+                            <a
+                              href="/admin"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setIsDropdownOpen(false)}
+                              className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100 transition-colors border-t border-slate-100 my-1 cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <Shield className="w-4 h-4 text-emerald-600" />
+                                <span>Admin CMS Panel</span>
+                              </div>
+                              <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+                            </a>
+                          )}
+                        </div>
+
+                        <div className="border-t border-slate-100 pt-1">
+                          <button
+                            onClick={() => {
+                              setIsDropdownOpen(false);
+                              logout();
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Log Out</span>
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               ) : loading ? (
