@@ -34,7 +34,9 @@ export const CartDrawer: React.FC = () => {
   const handleProceedToCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsCartOpen(false);
-    router.push('/checkout');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/checkout';
+    }
   };
 
   if (!isCartOpen) return null;

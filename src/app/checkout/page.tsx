@@ -25,14 +25,33 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Default to COD (Cash on Delivery) or first available payment account
-  const defaultAccount = MOCK_PAYMENT_ACCOUNTS.find((a) => a.type === 'cod') || MOCK_PAYMENT_ACCOUNTS[0];
-
-  // Payment & Receipt
-  const [selectedAccount, setSelectedAccount] = useState<PaymentAccount>(defaultAccount);
+  // Payment Accounts State (Loaded from Admin CMS)
+  const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>(MOCK_PAYMENT_ACCOUNTS);
+  const [selectedAccount, setSelectedAccount] = useState<PaymentAccount>(MOCK_PAYMENT_ACCOUNTS[0]);
   const [receiptUrl, setReceiptUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+
+  // Load active payment accounts set by Admin in Admin Panel
+  useEffect(() => {
+    const savedAccounts = localStorage.getItem('adnan_payment_accounts');
+    if (savedAccounts) {
+      try {
+        const parsed: PaymentAccount[] = JSON.parse(savedAccounts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPaymentAccounts(parsed);
+          const activeAccounts = parsed.filter((a) => a.isActive !== false);
+          if (activeAccounts.length > 0) {
+            // Prefer COD if available, or default to first active payment method
+            const codAcc = activeAccounts.find((a) => a.type === 'cod') || activeAccounts[0];
+            setSelectedAccount(codAcc);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load admin payment accounts', e);
+      }
+    }
+  }, []);
 
   if (!isLoaded) {
     return (
@@ -264,7 +283,7 @@ export default function CheckoutPage() {
                 </h3>
 
                 <PaymentGatewaySelector
-                  accounts={MOCK_PAYMENT_ACCOUNTS}
+                  accounts={paymentAccounts}
                   selectedId={selectedAccount.id}
                   onSelect={setSelectedAccount}
                 />
