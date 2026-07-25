@@ -27,11 +27,17 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
 
   // Form State
   const [name, setName] = useState('');
-  const [category, setCategory] = useState(categories[0]?.slug || 'milk-dairy');
-  const [price, setPrice] = useState<number>(100);
-  const [originalPrice, setOriginalPrice] = useState<number>(120);
-  const [unit, setUnit] = useState('1 Pack');
-  const [stock, setStock] = useState<number>(20);
+  const [category, setCategory] = useState('');
+  const [price, setPrice] = useState<string>('');
+  const [originalPrice, setOriginalPrice] = useState<string>('');
+  
+  // Dynamic Unit / Weight Mode State
+  const [unitType, setUnitType] = useState<'weight' | 'volume' | 'count' | 'custom'>('weight');
+  const [unitValue, setUnitValue] = useState<string>('');
+  const [unitSubMeasure, setUnitSubMeasure] = useState<string>('kg');
+  const [customUnit, setCustomUnit] = useState<string>('');
+
+  const [stock, setStock] = useState<string>('');
   const [image, setImage] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isFlashDeal, setIsFlashDeal] = useState(false);
@@ -47,11 +53,14 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
     setEditingProduct(null);
     setName('');
     setCategory(categories[0]?.slug || 'milk-dairy');
-    setPrice(100);
-    setOriginalPrice(120);
-    setUnit('1 Pack');
-    setStock(20);
-    setImage('https://images.unsplash.com/photo-1563636619-e9143da7973b?w=600&auto=format&fit=crop&q=80');
+    setPrice('');
+    setOriginalPrice('');
+    setUnitType('weight');
+    setUnitValue('');
+    setUnitSubMeasure('kg');
+    setCustomUnit('');
+    setStock('');
+    setImage(''); // Completely empty, no default product photo!
     setIsFeatured(false);
     setIsFlashDeal(false);
     setDescription('');
@@ -62,11 +71,12 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
     setEditingProduct(p);
     setName(p.name);
     setCategory(p.category);
-    setPrice(p.price);
-    setOriginalPrice(p.originalPrice || p.price);
-    setUnit(p.unit);
-    setStock(p.stock);
-    setImage(p.image);
+    setPrice(p.price ? String(p.price) : '');
+    setOriginalPrice(p.originalPrice ? String(p.originalPrice) : '');
+    setCustomUnit(p.unit || '');
+    setUnitType('custom');
+    setStock(p.stock !== undefined ? String(p.stock) : '');
+    setImage(p.image || '');
     setIsFeatured(p.isFeatured || false);
     setIsFlashDeal(p.isFlashDeal || false);
     setDescription(p.description || '');
@@ -87,23 +97,34 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
     }
   };
 
+  const computeFinalUnit = () => {
+    if (unitType === 'custom') return customUnit.trim() || '1 Item';
+    if (!unitValue.trim()) return `1 ${unitSubMeasure}`;
+    return `${unitValue.trim()} ${unitSubMeasure}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+    const numPrice = Number(price) || 0;
+    const numOriginalPrice = Number(originalPrice) || numPrice;
+    const numStock = Number(stock) || 0;
+    const finalUnit = computeFinalUnit();
+
+    const discount = numOriginalPrice > numPrice ? Math.round(((numOriginalPrice - numPrice) / numOriginalPrice) * 100) : 0;
 
     const payload = {
-      name,
+      name: name.trim(),
       category,
-      price,
-      originalPrice,
-      unit,
-      stock,
-      inStock: stock > 0,
-      image,
+      price: numPrice,
+      originalPrice: numOriginalPrice,
+      unit: finalUnit,
+      stock: numStock,
+      inStock: numStock > 0,
+      image: image.trim(),
       isFeatured,
       isFlashDeal,
       discountPercentage: discount,
-      description
+      description: description.trim()
     };
 
     if (editingProduct) {
@@ -132,7 +153,7 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
 
         <button
           onClick={openCreateModal}
-          className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm shrink-0"
+          className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Product</span>
@@ -155,48 +176,43 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredProducts.map((p) => {
-                const discount = p.originalPrice && p.originalPrice > p.price 
-                  ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
-                  : 0;
-
                 return (
                   <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="p-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 p-1">
-                          <Image
-                            src={getOptimizedImageUrl(p.image, 150)}
-                            alt={p.name}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                          {p.image ? (
+                            <Image
+                              src={getOptimizedImageUrl(p.image, 100)}
+                              alt={p.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                              <Tag className="w-4 h-4" />
+                            </div>
+                          )}
                         </div>
                         <div>
-                          <span className="font-extrabold text-slate-900 line-clamp-1">{p.name}</span>
+                          <h5 className="font-extrabold text-slate-900 line-clamp-1">{p.name}</h5>
                           <span className="text-[10px] text-slate-400 font-semibold">{p.unit}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="p-3.5 font-bold text-slate-700 capitalize">
+                    <td className="p-3.5 capitalize font-semibold text-slate-700">
                       {p.category.replace('-', ' ')}
                     </td>
-                    <td className="p-3.5 font-extrabold text-slate-900">
-                      Rs. {p.price}
+                    <td className="p-3.5">
+                      <span className="font-extrabold text-brand-700">Rs. {p.price}</span>
                       {p.originalPrice && p.originalPrice > p.price && (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] text-slate-400 line-through font-normal">
-                            Rs. {p.originalPrice}
-                          </span>
-                          {discount > 0 && (
-                            <span className="bg-red-100 text-red-700 text-[9px] font-black px-1.5 rounded">
-                              -{discount}%
-                            </span>
-                          )}
-                        </div>
+                        <span className="text-[10px] text-slate-400 line-through ml-1.5 font-semibold">
+                          Rs. {p.originalPrice}
+                        </span>
                       )}
                     </td>
                     <td className="p-3.5">
-                      <span className={`font-mono font-bold text-xs ${p.stock > 5 ? 'text-slate-800' : 'text-amber-600'}`}>
+                      <span className="font-bold text-slate-800">
                         {p.stock} in store
                       </span>
                     </td>
@@ -214,14 +230,14 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
                     <td className="p-3.5 text-right space-x-1">
                       <button
                         onClick={() => openEditModal(p)}
-                        className="p-1.5 text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                         title="Edit Product"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDeleteProduct(p.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Delete Product"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -243,57 +259,146 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
               <h4 className="font-extrabold text-lg text-slate-900">
                 {editingProduct ? 'Edit Store Product' : 'Add New Product'}
               </h4>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              
+              {/* Product Title */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Product Title</label>
+                <label className="block font-bold text-slate-700 mb-1">Product Title *</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Olper's Full Cream UHT Milk"
+                  placeholder="Enter product title..."
                   className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Category & Unit Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Category</label>
+                  <label className="block font-bold text-slate-700 mb-1">Category *</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold capitalize"
+                    className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold capitalize cursor-pointer"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.slug}>{c.name}</option>
                     ))}
                   </select>
                 </div>
+
+                {/* Interactive Unit & Weight Selector */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Unit / Weight</label>
-                  <input
-                    type="text"
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                    placeholder="e.g. 1 Liter, 1 kg, 500g Pack"
-                    className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                    required
-                  />
+                  <label className="block font-bold text-slate-700 mb-1">Unit / Measurement Type *</label>
+                  <select
+                    value={unitType}
+                    onChange={(e) => {
+                      const mode = e.target.value as any;
+                      setUnitType(mode);
+                      if (mode === 'weight') setUnitSubMeasure('kg');
+                      else if (mode === 'volume') setUnitSubMeasure('Liter');
+                      else if (mode === 'count') setUnitSubMeasure('Pack');
+                    }}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold cursor-pointer mb-2"
+                  >
+                    <option value="weight">⚖️ Weight (Kg / Grams)</option>
+                    <option value="volume">🧪 Volume (Liter / ML)</option>
+                    <option value="count">📦 Count (Pack / Piece / Dozen)</option>
+                    <option value="custom">✏️ Custom Unit Text</option>
+                  </select>
+
+                  {/* Dynamic Value Input for Selected Unit Mode */}
+                  {unitType === 'weight' && (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={unitValue}
+                        onChange={(e) => setUnitValue(e.target.value)}
+                        placeholder="Weight e.g. 1 or 0.5"
+                        className="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                      />
+                      <select
+                        value={unitSubMeasure}
+                        onChange={(e) => setUnitSubMeasure(e.target.value)}
+                        className="p-2.5 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none cursor-pointer bg-slate-50"
+                      >
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="Gram">Gram</option>
+                      </select>
+                    </div>
+                  )}
+
+                  {unitType === 'volume' && (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={unitValue}
+                        onChange={(e) => setUnitValue(e.target.value)}
+                        placeholder="Volume e.g. 1 or 500"
+                        className="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                      />
+                      <select
+                        value={unitSubMeasure}
+                        onChange={(e) => setUnitSubMeasure(e.target.value)}
+                        className="p-2.5 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none cursor-pointer bg-slate-50"
+                      >
+                        <option value="Liter">Liter</option>
+                        <option value="ml">ml</option>
+                      </select>
+                    </div>
+                  )}
+
+                  {unitType === 'count' && (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={unitValue}
+                        onChange={(e) => setUnitValue(e.target.value)}
+                        placeholder="Quantity e.g. 1 or 12"
+                        className="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                      />
+                      <select
+                        value={unitSubMeasure}
+                        onChange={(e) => setUnitSubMeasure(e.target.value)}
+                        className="p-2.5 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none cursor-pointer bg-slate-50"
+                      >
+                        <option value="Pack">Pack</option>
+                        <option value="Piece">Piece</option>
+                        <option value="Dozen">Dozen</option>
+                        <option value="Bottle">Bottle</option>
+                      </select>
+                    </div>
+                  )}
+
+                  {unitType === 'custom' && (
+                    <input
+                      type="text"
+                      value={customUnit}
+                      onChange={(e) => setCustomUnit(e.target.value)}
+                      placeholder="Custom unit text e.g. 1 Box (500g)"
+                      className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                    />
+                  )}
                 </div>
               </div>
 
+              {/* Price & Stock Fields (Blank by default) */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Discount Price (Rs)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Discount Price (Rs) *</label>
                   <input
                     type="number"
                     value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="e.g. 250"
                     className="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold text-brand-700 focus:ring-2 focus:ring-brand-500 focus:outline-none"
                     required
                   />
@@ -303,40 +408,57 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
                   <input
                     type="number"
                     value={originalPrice}
-                    onChange={(e) => setOriginalPrice(Number(e.target.value))}
+                    onChange={(e) => setOriginalPrice(e.target.value)}
+                    placeholder="e.g. 300"
                     className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Stock Available</label>
+                  <label className="block font-bold text-slate-700 mb-1">Stock Quantity *</label>
                   <input
                     type="number"
                     value={stock}
-                    onChange={(e) => setStock(Number(e.target.value))}
+                    onChange={(e) => setStock(e.target.value)}
+                    placeholder="e.g. 50"
                     className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
                     required
                   />
                 </div>
               </div>
 
-              {/* Cloudinary Image Picker & Icon Preview Box */}
+              {/* Product Image Preview Box & Cloudinary Upload */}
               <div className="space-y-2">
                 <label className="block font-bold text-slate-700">Product Image Preview Box</label>
 
-                {/* Icon Preview Box */}
-                {image && (
-                  <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-slate-100 border border-slate-300 shadow-sm mx-auto my-2 p-1 group">
-                    <Image
-                      src={getOptimizedImageUrl(image, 250)}
-                      alt="Product Preview"
-                      fill
-                      className="object-cover rounded-xl"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
-                      Preview Box
+                {/* Image Wireframe Mockup Box / Upload Preview */}
+                <div className="relative w-full h-36 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-3 text-center transition-all overflow-hidden group">
+                  {image ? (
+                    <>
+                      <Image
+                        src={getOptimizedImageUrl(image, 350)}
+                        alt="Uploaded Preview"
+                        fill
+                        className="object-contain p-2 rounded-xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setImage('')}
+                        className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full text-[10px] font-bold shadow-md hover:bg-red-700 transition-colors z-10"
+                        title="Remove Image"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-slate-400 space-y-1">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
+                        <UploadCloud className="w-5 h-5 text-brand-600" />
+                      </div>
+                      <span className="text-xs font-bold text-slate-700">Product Image Mockup Box</span>
+                      <span className="text-[10px] text-slate-400">No image uploaded yet. Click Upload below or paste image URL.</span>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 <div className="flex items-center gap-2">
                   <input
@@ -344,12 +466,11 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
                     className="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                    placeholder="Image URL"
-                    required
+                    placeholder="Or paste direct Image URL..."
                   />
-                  <label className="bg-slate-900 hover:bg-black text-white px-3 py-2.5 rounded-xl cursor-pointer font-bold flex items-center gap-1.5 shrink-0 text-xs shadow-sm">
+                  <label className="bg-slate-900 hover:bg-black text-white px-3.5 py-2.5 rounded-xl cursor-pointer font-bold flex items-center gap-1.5 shrink-0 text-xs shadow-sm transition-colors">
                     <UploadCloud className="w-4 h-4 text-emerald-400" />
-                    <span>{isUploading ? 'Uploading...' : 'Upload'}</span>
+                    <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 </div>
@@ -360,7 +481,7 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Fresh quality item description..."
+                  placeholder="Enter product description or details..."
                   rows={2}
                   className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
                 />
@@ -391,14 +512,14 @@ export const ProductManager: React.FC<ProductManagerProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-100 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+                  className="px-4 py-2.5 bg-slate-100 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isUploading}
-                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-extrabold shadow-md transition-all active:scale-95"
+                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-extrabold shadow-md transition-all active:scale-95 cursor-pointer"
                 >
                   {isUploading ? 'Uploading Image...' : editingProduct ? 'Update Product' : 'Save Product'}
                 </button>
