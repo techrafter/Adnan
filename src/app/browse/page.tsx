@@ -83,42 +83,57 @@ function BrowseContent() {
       <div>
         <Header onOpenSearch={() => setIsSearchModalOpen(true)} />
 
-        {/* Sub-header bar for Category Browse */}
-        <div className="bg-white border-b border-slate-200 shadow-2xs py-3 px-3 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex items-center gap-3">
-            <Link
-              href="/"
-              className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-700 transition-colors shrink-0"
-              title="Back to Home"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
+        {/* Aligned Category Grid Buttons Bar */}
+        <div className="bg-white border-b border-slate-200 shadow-2xs py-4 px-3 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 mb-3">
+              <Link
+                href="/"
+                className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-700 transition-colors shrink-0"
+                title="Back to Home"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                Select Category
+              </h2>
+            </div>
 
-            {/* Firebase Categories Horizontal Pill Bar */}
-            <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {/* Grid of Aligned Category Buttons */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3">
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all border text-center cursor-pointer ${
                   selectedCategory === 'all'
-                    ? 'bg-brand-600 text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'
+                    ? 'bg-brand-600 text-white border-brand-600 shadow-md scale-102'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200 hover:border-slate-300'
                 }`}
               >
-                All Categories
+                All Categories ({products.length})
               </button>
+
               {categories.map((cat) => {
                 const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
+                const catItemCount = products.filter(
+                  (p) => p.category === cat.slug || p.category === cat.id || p.category === cat.name
+                ).length;
+
                 return (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                    className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all border text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer ${
                       isSelected
-                        ? 'bg-brand-600 text-white shadow-xs'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'
+                        ? 'bg-brand-600 text-white border-brand-600 shadow-md scale-102'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <span>{cat.name}</span>
+                    <span className="truncate w-full">{cat.name}</span>
+                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-semibold ${
+                      isSelected ? 'bg-white/25 text-white' : 'bg-slate-200 text-slate-600'
+                    }`}>
+                      {catItemCount} ads
+                    </span>
                   </button>
                 );
               })}
@@ -136,7 +151,7 @@ function BrowseContent() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder={`Search ads in ${activeCategoryName}...`}
+                placeholder={`Search ads...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-brand-500"
@@ -204,7 +219,6 @@ function BrowseContent() {
 
       <CartDrawer />
       <MobileBottomNav onOpenSearch={() => setIsSearchModalOpen(true)} onOpenAuth={() => setIsAuthModalOpen(true)} />
-      <Footer />
     </div>
   );
 }
