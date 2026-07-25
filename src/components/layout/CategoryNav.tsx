@@ -11,7 +11,9 @@ interface CategoryNavProps {
   onSelectCategory: (slug: string) => void;
 }
 
-export const CategoryNav: React.FC<CategoryNavProps> = ({ categories, selectedCategory, onSelectCategory }) => {
+export const CategoryNav: React.FC<CategoryNavProps> = ({ categories = [], selectedCategory, onSelectCategory }) => {
+  const displayCategories = categories;
+
   const handleCategoryNavClick = (slug: string) => {
     onSelectCategory(slug);
     if (slug === 'all') {
