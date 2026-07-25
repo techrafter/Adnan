@@ -83,55 +83,46 @@ function BrowseContent() {
       <div>
         <Header onOpenSearch={() => setIsSearchModalOpen(true)} />
 
-        {/* Sub-header banner for Category Browse */}
-        <div className="bg-white border-b border-slate-200 shadow-2xs py-4 px-3 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/"
-                className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-700 transition-colors"
-                title="Back to Home"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  {activeCategoryName}
-                </h1>
-                <p className="text-xs text-slate-500">
-                  Showing all live ads & products in {STORE_LOCATION} ({filteredProducts.length} items)
-                </p>
-              </div>
-            </div>
+        {/* Sub-header bar for Category Browse */}
+        <div className="bg-white border-b border-slate-200 shadow-2xs py-3 px-3 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center gap-3">
+            <Link
+              href="/"
+              className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-700 transition-colors shrink-0"
+              title="Back to Home"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
 
-            {/* Category Select Pill Filter */}
-            {categories.length > 0 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 max-w-full no-scrollbar">
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                    selectedCategory === 'all'
-                      ? 'bg-brand-600 text-white shadow-xs'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                  }`}
-                >
-                  All Ads
-                </button>
-                {categories.map((cat) => (
+            {/* Firebase Categories Horizontal Pill Bar */}
+            <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                  selectedCategory === 'all'
+                    ? 'bg-brand-600 text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'
+                }`}
+              >
+                All Categories
+              </button>
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
+                return (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                      selectedCategory === cat.slug || selectedCategory === cat.id
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                      isSelected
                         ? 'bg-brand-600 text-white shadow-xs'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'
                     }`}
                   >
-                    {cat.name}
+                    <span>{cat.name}</span>
                   </button>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
         </div>
 
