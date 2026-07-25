@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Banner, Category } from '@/types';
-import { Plus, Edit2, Trash2, X, UploadCloud, Clock, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, UploadCloud, Clock, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import { getOptimizedImageUrl, uploadToCloudinary } from '@/lib/cloudinary';
 
 interface BannerManagerProps {
@@ -30,6 +30,8 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
   const [isForever, setIsForever] = useState(true);
   const [expiresAt, setExpiresAt] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const openCreateModal = () => {
     setEditingBanner(null);
@@ -78,15 +80,34 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
     };
 
     try {
+      setIsSaving(true);
       if (editingBanner) {
         await onUpdateBanner({ ...editingBanner, ...payload });
       } else {
         await onAddBanner(payload);
       }
       setIsModalOpen(false);
+      setSuccessMessage('Banner Applied Successfully');
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 4000);
     } catch (err) {
       console.error('Failed to save banner:', err);
       alert('Failed to save banner to database. Please check your connection.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this banner?')) {
+      try {
+        await onDeleteBanner(id);
+        setSuccessMessage('Banner Deleted Successfully');
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } catch (err) {
+        console.error('Failed to delete banner:', err);
+      }
     }
   };
 
@@ -96,8 +117,22 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       
+      {/* Toast Notification for Success */}
+      {successMessage && (
+        <div className="fixed top-20 right-5 z-50 bg-emerald-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
+          <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
+          <span className="text-xs font-extrabold tracking-wide">{successMessage}</span>
+          <button
+            onClick={() => setSuccessMessage(null)}
+            className="ml-2 text-white/80 hover:text-white p-1 rounded-full cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Action Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
@@ -180,7 +215,7 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                     </button>
 
                     <button
-                      onClick={() => onDeleteBanner(b.id)}
+                      onClick={() => handleDelete(b.id)}
                       className="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -322,10 +357,10 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                 </button>
                 <button
                   type="submit"
-                  disabled={isUploading}
-                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-extrabold shadow-md transition-all active:scale-95 cursor-pointer"
+                  disabled={isUploading || isSaving}
+                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-extrabold shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50"
                 >
-                  {isUploading ? 'Uploading Image...' : editingBanner ? 'Update Banner' : 'Save Banner'}
+                  {isSaving ? 'Saving Banner...' : isUploading ? 'Uploading Image...' : editingBanner ? 'Update Banner' : 'Save Banner'}
                 </button>
               </div>
             </form>
