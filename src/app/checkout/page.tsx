@@ -16,7 +16,7 @@ import { MapPin, ArrowLeft, ShieldCheck, CheckCircle2, MessageSquareCode, Shoppi
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 
 export default function CheckoutPage() {
-  const { cart, subtotal, discount, deliveryFee, totalAmount, clearCart } = useCart();
+  const { cart, subtotal, discount, deliveryFee, totalAmount, clearCart, isLoaded } = useCart();
   const { user } = useAuth();
 
   // Form State
@@ -25,11 +25,29 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
 
+  // Default to COD (Cash on Delivery) or first available payment account
+  const defaultAccount = MOCK_PAYMENT_ACCOUNTS.find((a) => a.type === 'cod') || MOCK_PAYMENT_ACCOUNTS[0];
+
   // Payment & Receipt
-  const [selectedAccount, setSelectedAccount] = useState<PaymentAccount>(MOCK_PAYMENT_ACCOUNTS[0]);
+  const [selectedAccount, setSelectedAccount] = useState<PaymentAccount>(defaultAccount);
   const [receiptUrl, setReceiptUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex flex-col justify-between bg-slate-50">
+        <Header onOpenSearch={() => {}} />
+        <main className="max-w-md mx-auto my-16 px-4 text-center">
+          <div className="w-12 h-12 bg-emerald-100 rounded-full animate-pulse mx-auto mb-3 flex items-center justify-center">
+            <ShoppingBag className="w-6 h-6 text-brand-600 animate-spin" />
+          </div>
+          <p className="text-xs font-bold text-slate-600">Loading Checkout Details...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (cart.length === 0 && !completedOrder) {
     return (
@@ -58,12 +76,7 @@ export default function CheckoutPage() {
     e.preventDefault();
 
     if (!customerName || !customerPhone || !address) {
-      alert('Please fill out all required delivery fields.');
-      return;
-    }
-
-    if (selectedAccount.type !== 'cod' && !receiptUrl) {
-      alert('Please upload your payment screenshot receipt before confirming.');
+      alert('Please fill out all required delivery fields (Full Name, Phone, and Address).');
       return;
     }
 

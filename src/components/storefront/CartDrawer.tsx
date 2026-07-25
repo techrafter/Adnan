@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { X, Trash2, Plus, Minus, Tag, ArrowRight, ShoppingBag, ShieldCheck, MapPin, Sparkles, PiggyBank } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import { STORE_LOCATION } from '@/lib/mockData';
 
 export const CartDrawer: React.FC = () => {
+  const router = useRouter();
   const {
     cart,
     isCartOpen,
@@ -28,6 +30,12 @@ export const CartDrawer: React.FC = () => {
 
   const [couponInput, setCouponInput] = useState('');
   const [couponMessage, setCouponMessage] = useState<{ success: boolean; text: string } | null>(null);
+
+  const handleProceedToCheckout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsCartOpen(false);
+    router.push('/checkout');
+  };
 
   if (!isCartOpen) return null;
 
@@ -268,14 +276,14 @@ export const CartDrawer: React.FC = () => {
               </div>
 
               {/* Checkout Button */}
-              <Link
-                href="/checkout"
-                onClick={() => setIsCartOpen(false)}
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 group text-sm"
+              <button
+                type="button"
+                onClick={handleProceedToCheckout}
+                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 group text-sm cursor-pointer"
               >
                 <span>Proceed to Checkout (Rs. {totalAmount.toLocaleString()})</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
 
               <p className="text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-600" /> Instant Order Placement & WhatsApp Receipt Engine

@@ -9,6 +9,7 @@ const STANDARD_DELIVERY_FEE = 50;
 
 interface CartContextType {
   cart: CartItem[];
+  isLoaded: boolean;
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -32,6 +33,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
@@ -44,6 +46,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Failed to parse cart local storage', e);
       }
     }
+    setIsLoaded(true);
   }, []);
 
   const saveCartToStorage = (updatedCart: CartItem[]) => {
@@ -150,6 +153,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <CartContext.Provider
       value={{
         cart,
+        isLoaded,
         addToCart,
         removeFromCart,
         updateQuantity,
