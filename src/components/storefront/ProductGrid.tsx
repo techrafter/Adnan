@@ -160,7 +160,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
                   {/* View All link */}
                   <Link
-                    href={`/browse?category=${encodeURIComponent(group.slug || group.id)}`}
+                    href={`/browse?category=${encodeURIComponent(group.slug || group.id || group.name)}`}
                     className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60 shrink-0"
                   >
                     <span>View all</span>
@@ -179,7 +179,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 {group.items.length > 7 && (
                   <div className="mt-3 text-right">
                     <Link
-                      href={`/browse?category=${encodeURIComponent(group.slug || group.id)}`}
+                      href={`/browse?category=${encodeURIComponent(group.slug || group.id || group.name)}`}
                       className="text-xs font-semibold text-slate-500 hover:text-brand-600 inline-flex items-center gap-1"
                     >
                       <span>Explore {group.items.length - 7} more products from {group.name}...</span>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -15,6 +15,7 @@ import { STORE_LOCATION } from '@/lib/mockData';
 import { ArrowLeft, ArrowUpDown, Layers, Search } from 'lucide-react';
 
 function BrowseContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const categorySlugParam = searchParams.get('category') || 'all';
   const urlSearchQuery = searchParams.get('search') || searchParams.get('q') || '';
@@ -27,39 +28,85 @@ function BrowseContent() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
+  // Sync state whenever URL query parameter changes
   useEffect(() => {
-    if (categorySlugParam) {
-      setSelectedCategory(categorySlugParam);
-    }
+    setSelectedCategory(categorySlugParam);
   }, [categorySlugParam]);
 
   useEffect(() => {
-    if (urlSearchQuery) {
-      setSearchQuery(urlSearchQuery);
-    }
+    setSearchQuery(urlSearchQuery);
   }, [urlSearchQuery]);
 
-  // Find active category details
+  // Handler to select category and push URL update so URL bar displays ?category=slug
+  const handleSelectCategory = (catSlug: string) => {
+    setSelectedCategory(catSlug);
+    const params = new URLSearchParams();
+    if (catSlug && catSlug !== 'all') {
+      params.set('category', catSlug);
+    }
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    }
+    const queryString = params.toString();
+    router.push(`/browse${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  };
+
+  // Find active category details matching slug, id, or name
   const activeCategoryObj = useMemo(() => {
-    return categories.find(
-      (c) => c.slug === selectedCategory || c.id === selectedCategory || c.name.toLowerCase() === selectedCategory.toLowerCase()
-    );
+    if (selectedCategory === 'all') return null;
+    const target = selectedCategory.toLowerCase();
+    return categories.find((c) => {
+      const cSlug = (c.slug || '').toLowerCase();
+      const cId = (c.id || '').toLowerCase();
+      const cName = (c.name || '').toLowerCase();
+      const cNameSlug = cName.replace(/\s+/g, '-');
+      return cSlug === target || cId === target || cName === target || cNameSlug === target;
+    });
   }, [categories, selectedCategory]);
 
   const activeCategoryName = useMemo(() => {
-    if (selectedCategory === 'all') return 'All Categories & Ads';
+    if (selectedCategory === 'all') return 'All Categories & Products';
     if (activeCategoryObj) return activeCategoryObj.name;
-    return selectedCategory.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    return selectedCategory.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   }, [selectedCategory, activeCategoryObj]);
 
   // Filter products for this specific category
   const filteredProducts = useMemo(() => {
     return products
       .filter((product) => {
-        const matchesCategory =
-          selectedCategory === 'all' ||
-          product.category === selectedCategory ||
-          (activeCategoryObj && (product.category === activeCategoryObj.id || product.category === activeCategoryObj.slug));
+        if (selectedCategory === 'all') {
+          const matchesSearch =
+            !searchQuery ||
+            product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.category.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesStock = !inStockOnly || product.inStock;
+          return matchesSearch && matchesStock;
+        }
+
+        const prodCat = (product.category || '').toLowerCase();
+        const selCat = selectedCategory.toLowerCase();
+
+        // 1. Direct match with selectedCategory string or slugified/deslugified formats
+        let matchesCategory =
+          prodCat === selCat ||
+          prodCat.replace(/\s+/g, '-') === selCat ||
+          prodCat.replace(/-/g, ' ') === selCat.replace(/-/g, ' ');
+
+        // 2. Match via activeCategoryObj if resolved
+        if (!matchesCategory && activeCategoryObj) {
+          const catId = (activeCategoryObj.id || '').toLowerCase();
+          const catSlug = (activeCategoryObj.slug || '').toLowerCase();
+          const catName = (activeCategoryObj.name || '').toLowerCase();
+          const catNameSlug = catName.replace(/\s+/g, '-');
+
+          matchesCategory =
+            prodCat === catId ||
+            prodCat === catSlug ||
+            prodCat === catName ||
+            prodCat === catNameSlug ||
+            prodCat.replace(/-/g, ' ') === catName ||
+            prodCat.replace(/\s+/g, '-') === catSlug;
+        }
 
         const matchesSearch =
           !searchQuery ||
@@ -95,14 +142,14 @@ function BrowseContent() {
                 <ArrowLeft className="w-4 h-4" />
               </Link>
               <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                Categories
+                Store Categories
               </h2>
             </div>
 
-            {/* Compact Flex Wrap / Grid Category Buttons (No Count Badges) */}
+            {/* Compact Category Pill Buttons */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <button
-                onClick={() => setSelectedCategory('all')}
+                onClick={() => handleSelectCategory('all')}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all border cursor-pointer ${
                   selectedCategory === 'all'
                     ? 'bg-brand-600 text-white border-brand-600 shadow-xs scale-102'
@@ -113,12 +160,17 @@ function BrowseContent() {
               </button>
 
               {categories.map((cat) => {
-                const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
+                const catValue = cat.slug || cat.id || cat.name.toLowerCase().replace(/\s+/g, '-');
+                const isSelected =
+                  selectedCategory.toLowerCase() === catValue.toLowerCase() ||
+                  selectedCategory === cat.id ||
+                  selectedCategory === cat.slug ||
+                  (activeCategoryObj && activeCategoryObj.id === cat.id);
 
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => setSelectedCategory(cat.slug || cat.id)}
+                    onClick={() => handleSelectCategory(catValue)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
                       isSelected
                         ? 'bg-brand-600 text-white border-brand-600 shadow-xs scale-102'
@@ -137,7 +189,7 @@ function BrowseContent() {
         <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
           
           {/* Controls Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-2xs">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-2xs">
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -178,9 +230,19 @@ function BrowseContent() {
             </div>
           </div>
 
+          {/* Active Category Title & Count Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+              <span>Showing: <span className="text-brand-600">{activeCategoryName}</span></span>
+              <span className="text-xs font-semibold text-slate-500 bg-slate-200/70 px-2.5 py-0.5 rounded-full">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+              </span>
+            </h3>
+          </div>
+
           {/* Products Display Grid */}
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-2.5 lg:gap-3">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
