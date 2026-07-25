@@ -56,16 +56,24 @@ export const Footer: React.FC = () => {
             <h4 className="font-bold text-slate-900 text-sm tracking-tight mb-4">Categories</h4>
             {displayCategories.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2.5 text-[13px]">
-                {displayCategories.map((cat) => (
-                  <Link
-                    key={cat.id || cat.name}
-                    href={`/browse?category=${encodeURIComponent(cat.name)}`}
-                    className="text-slate-600 hover:text-slate-900 transition-colors font-normal truncate block"
-                    title={cat.name}
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
+                {displayCategories.map((cat) => {
+                  const catTarget = cat.slug || cat.id || cat.name;
+                  return (
+                    <Link
+                      key={cat.id || cat.slug || cat.name}
+                      href={`/browse?category=${encodeURIComponent(catTarget)}`}
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="text-slate-600 hover:text-slate-900 transition-colors font-normal truncate block"
+                      title={cat.name}
+                    >
+                      {cat.name}
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <p className="text-xs text-slate-400">Loading categories...</p>
