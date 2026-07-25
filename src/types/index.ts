@@ -1,3 +1,16 @@
+export interface Banner {
+  id: string;
+  title?: string;
+  subtitle?: string;
+  image: string;
+  targetCategory?: string;
+  targetUrl?: string;
+  isActive: boolean;
+  isForever?: boolean;
+  expiresAt?: string;
+  createdAt: string;
+}
+
 export interface Category {
   id: string;
   name: string;

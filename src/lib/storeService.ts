@@ -8,7 +8,35 @@ import {
   query,
   orderBy
 } from 'firebase/firestore';
-import { Category, Product } from '@/types';
+import { Category, Product, Banner } from '@/types';
+
+// Real-time listener for Banners from Firestore
+export function subscribeToBanners(
+  onUpdate: (banners: Banner[]) => void
+) {
+  try {
+    const bannersRef = collection(db, 'banners');
+    return onSnapshot(
+      bannersRef,
+      (snapshot) => {
+        const items: Banner[] = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() } as Banner);
+        });
+        onUpdate(items);
+        if (items.length > 0) {
+          localStorage.setItem('adnan_banners', JSON.stringify(items));
+        }
+      },
+      (error) => {
+        console.warn('Banners Firestore listener notice:', error);
+      }
+    );
+  } catch (e) {
+    console.warn('Firestore subscription failed for banners:', e);
+    return () => {};
+  }
+}
 
 // Real-time listener for Categories from Firestore
 export function subscribeToCategories(
@@ -99,5 +127,23 @@ export async function deleteProductFromFirestore(id: string) {
     await deleteDoc(doc(db, 'products', id));
   } catch (e) {
     console.warn('Deleted product locally:', e);
+  }
+}
+
+// Save Banner to Firestore
+export async function saveBannerToFirestore(banner: Banner) {
+  try {
+    await setDoc(doc(db, 'banners', banner.id), banner, { merge: true });
+  } catch (e) {
+    console.warn('Saved banner locally:', e);
+  }
+}
+
+// Delete Banner from Firestore
+export async function deleteBannerFromFirestore(id: string) {
+  try {
+    await deleteDoc(doc(db, 'banners', id));
+  } catch (e) {
+    console.warn('Deleted banner locally:', e);
   }
 }

@@ -1,0 +1,412 @@
+'use client';
+
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { Banner, Category } from '@/types';
+import { Plus, Edit2, Trash2, Check, X, UploadCloud, Calendar, Clock, Link as LinkIcon, Image as ImageIcon, Eye } from 'lucide-react';
+import { getOptimizedImageUrl, uploadToCloudinary } from '@/lib/cloudinary';
+
+interface BannerManagerProps {
+  banners: Banner[];
+  categories: Category[];
+  onAddBanner: (b: Omit<Banner, 'id' | 'createdAt'>) => void;
+  onUpdateBanner: (b: Banner) => void;
+  onDeleteBanner: (id: string) => void;
+}
+
+export const BannerManager: React.FC<BannerManagerProps> = ({
+  banners,
+  categories,
+  onAddBanner,
+  onUpdateBanner,
+  onDeleteBanner,
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+
+  // Form state
+  const [title, setTitle] = useState('');
+  const [subtitle, setSubtitle] = useState('');
+  const [image, setImage] = useState('');
+  const [targetCategory, setTargetCategory] = useState('');
+  const [targetUrl, setTargetUrl] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [isForever, setIsForever] = useState(true);
+  const [expiresAt, setExpiresAt] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+
+  const openCreateModal = () => {
+    setEditingBanner(null);
+    setTitle('');
+    setSubtitle('');
+    setImage('');
+    setTargetCategory('');
+    setTargetUrl('');
+    setIsActive(true);
+    setIsForever(true);
+    setExpiresAt('');
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (b: Banner) => {
+    setEditingBanner(b);
+    setTitle(b.title || '');
+    setSubtitle(b.subtitle || '');
+    setImage(b.image || '');
+    setTargetCategory(b.targetCategory || '');
+    setTargetUrl(b.targetUrl || '');
+    setIsActive(b.isActive);
+    setIsForever(b.isForever ?? !b.expiresAt);
+    setExpiresAt(b.expiresAt || '');
+    setIsModalOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploading(true);
+      const url = await uploadToCloudinary(file);
+      setImage(url);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!image.trim()) {
+      alert('Please upload a banner image or paste an image URL.');
+      return;
+    }
+
+    const payload = {
+      title: title.trim(),
+      subtitle: subtitle.trim(),
+      image: image.trim(),
+      targetCategory,
+      targetUrl: targetUrl.trim(),
+      isActive,
+      isForever,
+      expiresAt: isForever ? undefined : expiresAt,
+    };
+
+    if (editingBanner) {
+      onUpdateBanner({ ...editingBanner, ...payload });
+    } else {
+      onAddBanner(payload);
+    }
+    setIsModalOpen(false);
+  };
+
+  const checkIsExpired = (b: Banner) => {
+    if (b.isForever || !b.expiresAt) return false;
+    return new Date(b.expiresAt).getTime() < Date.now();
+  };
+
+  return (
+    <div className="space-y-6">
+      
+      {/* Action Header */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div>
+          <h3 className="text-base font-extrabold text-slate-900">Index Storefront Banners ({banners.length})</h3>
+          <p className="text-xs text-slate-500">
+            Upload custom promotional banners that auto-slide every 5 seconds on the homepage.
+          </p>
+        </div>
+
+        <button
+          onClick={openCreateModal}
+          className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Upload New Banner</span>
+        </button>
+      </div>
+
+      {/* Banners Grid List */}
+      {banners.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {banners.map((b) => {
+            const isExpired = checkIsExpired(b);
+
+            return (
+              <div
+                key={b.id}
+                className={`bg-white rounded-2xl border transition-all overflow-hidden shadow-xs flex flex-col ${
+                  isExpired ? 'border-red-200 bg-red-50/30' : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                {/* Banner Image Preview */}
+                <div className="relative w-full h-40 bg-slate-900 overflow-hidden group">
+                  <Image
+                    src={getOptimizedImageUrl(b.image, 600)}
+                    alt={b.title || 'Store Banner'}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                    {isExpired ? (
+                      <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Expired
+                      </span>
+                    ) : b.isActive ? (
+                      <span className="bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Active Banner
+                      </span>
+                    ) : (
+                      <span className="bg-slate-700 text-slate-200 text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Disabled
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Banner Info */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-slate-900 line-clamp-1">
+                      {b.title || 'Promotional Banner'}
+                    </h4>
+                    {b.subtitle && (
+                      <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{b.subtitle}</p>
+                    )}
+
+                    <div className="mt-2 text-[11px] space-y-1 text-slate-600">
+                      {b.targetCategory && (
+                        <div className="flex items-center gap-1.5 font-semibold text-brand-700">
+                          <LinkIcon className="w-3 h-3" />
+                          <span>Link: Category ({b.targetCategory})</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-1.5 text-slate-500">
+                        <Clock className="w-3 h-3" />
+                        <span>
+                          {b.isForever || !b.expiresAt
+                            ? 'Never Expires (Forever)'
+                            : `Expires: ${new Date(b.expiresAt).toLocaleString()}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      onClick={() => openEditModal(b)}
+                      className="text-xs font-bold text-slate-600 hover:text-brand-600 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>Edit Details</span>
+                    </button>
+
+                    <button
+                      onClick={() => onDeleteBanner(b.id)}
+                      className="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl p-12 text-center max-w-md mx-auto border border-slate-200 shadow-xs">
+          <div className="w-14 h-14 bg-emerald-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-3">
+            <ImageIcon className="w-7 h-7" />
+          </div>
+          <h4 className="text-base font-extrabold text-slate-900 mb-1">No Custom Banners Yet</h4>
+          <p className="text-xs text-slate-500 mb-4">
+            Upload custom promo banners with Cloudinary and expiration timing to display auto-sliding banners on storefront home page.
+          </p>
+          <button
+            onClick={openCreateModal}
+            className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-sm"
+          >
+            Upload First Banner
+          </button>
+        </div>
+      )}
+
+      {/* Upload / Edit Banner Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h4 className="font-extrabold text-lg text-slate-900">
+                {editingBanner ? 'Edit Storefront Banner' : 'Upload Storefront Banner'}
+              </h4>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              
+              {/* Image Preview / Upload Box */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Banner Image *</label>
+                <div className="relative w-full h-36 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-2 overflow-hidden">
+                  {image ? (
+                    <>
+                      <Image
+                        src={getOptimizedImageUrl(image, 500)}
+                        alt="Banner Preview"
+                        fill
+                        className="object-cover rounded-xl"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setImage('')}
+                        className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full shadow-md z-10"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center text-slate-400 space-y-1">
+                      <UploadCloud className="w-6 h-6 text-brand-600" />
+                      <span className="text-xs font-bold text-slate-700">Click Upload below or paste image URL</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    placeholder="Image URL..."
+                    className="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                  />
+                  <label className="bg-slate-900 hover:bg-black text-white px-3 py-2.5 rounded-xl cursor-pointer font-bold flex items-center gap-1.5 text-xs shrink-0 shadow-xs">
+                    <UploadCloud className="w-4 h-4 text-emerald-400" />
+                    <span>{isUploading ? 'Uploading...' : 'Upload'}</span>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                </div>
+              </div>
+
+              {/* Title & Subtitle */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Banner Headline Title (Optional)</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Fresh Organic Grocery Deals 50% Off"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Subtitle Text (Optional)</label>
+                <input
+                  type="text"
+                  value={subtitle}
+                  onChange={(e) => setSubtitle(e.target.value)}
+                  placeholder="e.g. Free Express Doorstep Delivery in Razzar"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Target Link */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">On Click Destination (Category)</label>
+                <select
+                  value={targetCategory}
+                  onChange={(e) => setTargetCategory(e.target.value)}
+                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold cursor-pointer"
+                >
+                  <option value="">None (Static Banner)</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Expiration Settings */}
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <label className="block font-bold text-slate-800">Banner Timing & Expiration</label>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
+                    <input
+                      type="radio"
+                      name="expiration"
+                      checked={isForever}
+                      onChange={() => setIsForever(true)}
+                      className="accent-brand-600"
+                    />
+                    <span>Never Expires (Forever)</span>
+                  </label>
+
+                  <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700">
+                    <input
+                      type="radio"
+                      name="expiration"
+                      checked={!isForever}
+                      onChange={() => setIsForever(false)}
+                      className="accent-brand-600"
+                    />
+                    <span>Set Expiry Date</span>
+                  </label>
+                </div>
+
+                {!isForever && (
+                  <div className="pt-1">
+                    <label className="block font-semibold text-slate-600 mb-1">Expiration Date & Time</label>
+                    <input
+                      type="datetime-local"
+                      value={expiresAt}
+                      onChange={(e) => setExpiresAt(e.target.value)}
+                      className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium bg-white"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Active Toggle */}
+              <div className="pt-1">
+                <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                    className="accent-brand-600 w-4 h-4 rounded"
+                  />
+                  <span>Banner Active on Index Storefront</span>
+                </label>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2.5 bg-slate-100 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploading}
+                  className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-extrabold shadow-md transition-all active:scale-95 cursor-pointer"
+                >
+                  {isUploading ? 'Uploading Image...' : editingBanner ? 'Update Banner' : 'Save Banner'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
