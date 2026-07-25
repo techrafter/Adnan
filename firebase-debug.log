@@ -1,0 +1,16 @@
+[debug] [2026-07-25T18:17:34.922Z] ----------------------------------------------------------------------
+[debug] [2026-07-25T18:17:34.925Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ZC\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules
+[debug] [2026-07-25T18:17:34.926Z] CLI Version:   15.19.0
+[debug] [2026-07-25T18:17:34.926Z] Platform:      win32
+[debug] [2026-07-25T18:17:34.926Z] Node Version:  v26.3.0
+[debug] [2026-07-25T18:17:34.926Z] Time:          Sat Jul 25 2026 23:17:34 GMT+0500 (Pakistan Standard Time)
+[debug] [2026-07-25T18:17:34.926Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-25T18:17:38.744Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-25T18:17:38.751Z] > authorizing via signed-in user (abbascaan@gmail.com)
+[debug] [2026-07-25T18:17:38.752Z] [iam] checking project adnan-1c2a7 for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-07-25T18:17:38.757Z] Checked if tokens are valid: true, expires at: 1785007012506
+[debug] [2026-07-25T18:17:38.758Z] Checked if tokens are valid: true, expires at: 1785007012506
+[debug] [2026-07-25T18:17:38.762Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/adnan-1c2a7:testIamPermissions [none]
+[debug] [2026-07-25T18:17:38.763Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/adnan-1c2a7:testIamPermissions  x-goog-user-project=adnan-1c2a7
+[debug] [2026-07-25T18:17:38.763Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/adnan-1c2a7:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}

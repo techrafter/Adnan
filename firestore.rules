@@ -38,8 +38,7 @@ service cloud.firestore {
     }
 
     match /banners/{bannerId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     match /payment_methods/{methodId} {
