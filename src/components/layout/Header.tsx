@@ -101,13 +101,13 @@ export const Header: React.FC<HeaderProps> = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={`Search ads in ${STORE_LOCATION}...`}
+                  placeholder={`Search products in ${STORE_LOCATION}...`}
                   className="w-full bg-transparent text-xs sm:text-sm text-slate-900 focus:outline-none placeholder:text-slate-400 font-medium"
                 />
                 <button
                   type="submit"
                   className="bg-brand-600 hover:bg-brand-700 text-white rounded-full p-1.5 sm:p-2 flex items-center justify-center shrink-0 shadow-xs transition-colors cursor-pointer"
-                  title="Search Ads"
+                  title="Search Products"
                 >
                   <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>

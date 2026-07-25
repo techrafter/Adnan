@@ -83,57 +83,49 @@ function BrowseContent() {
       <div>
         <Header onOpenSearch={() => setIsSearchModalOpen(true)} />
 
-        {/* Aligned Category Grid Buttons Bar */}
-        <div className="bg-white border-b border-slate-200 shadow-2xs py-4 px-3 sm:px-6 lg:px-8">
+        {/* Compact Category Selection Buttons Bar */}
+        <div className="bg-white border-b border-slate-200 shadow-2xs py-3 px-3 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-2.5">
               <Link
                 href="/"
-                className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-700 transition-colors shrink-0"
+                className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-700 transition-colors shrink-0"
                 title="Back to Home"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
               </Link>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                Select Category
+              <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+                Categories
               </h2>
             </div>
 
-            {/* Grid of Aligned Category Buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3">
+            {/* Compact Flex Wrap / Grid Category Buttons (No Count Badges) */}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all border text-center cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all border cursor-pointer ${
                   selectedCategory === 'all'
-                    ? 'bg-brand-600 text-white border-brand-600 shadow-md scale-102'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200 hover:border-slate-300'
+                    ? 'bg-brand-600 text-white border-brand-600 shadow-xs scale-102'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80 hover:border-slate-300'
                 }`}
               >
-                All Categories ({products.length})
+                All Categories
               </button>
 
               {categories.map((cat) => {
                 const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
-                const catItemCount = products.filter(
-                  (p) => p.category === cat.slug || p.category === cat.id || p.category === cat.name
-                ).length;
 
                 return (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                    className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all border text-center flex flex-col items-center justify-center gap-0.5 cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
                       isSelected
-                        ? 'bg-brand-600 text-white border-brand-600 shadow-md scale-102'
-                        : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-200 hover:border-slate-300'
+                        ? 'bg-brand-600 text-white border-brand-600 shadow-xs scale-102'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/80 hover:border-slate-300'
                     }`}
                   >
-                    <span className="truncate w-full">{cat.name}</span>
-                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-semibold ${
-                      isSelected ? 'bg-white/25 text-white' : 'bg-slate-200 text-slate-600'
-                    }`}>
-                      {catItemCount} ads
-                    </span>
+                    {cat.name}
                   </button>
                 );
               })}
@@ -151,7 +143,7 @@ function BrowseContent() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder={`Search ads...`}
+                placeholder={`Search products...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-brand-500"
@@ -186,7 +178,7 @@ function BrowseContent() {
             </div>
           </div>
 
-          {/* Ads Display Grid */}
+          {/* Products Display Grid */}
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {filteredProducts.map((product) => (
@@ -198,9 +190,9 @@ function BrowseContent() {
               <div className="w-14 h-14 bg-emerald-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Layers className="w-7 h-7" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">Is Category Mein Abhi Koi Ads Nahi Hain</h3>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">Is Category Mein Abhi Koi Products Nahi Hain</h3>
               <p className="text-xs text-slate-500 mb-4">
-                Aap doosri categories check kar sakte hain ya Admin panel se nayi ads add kar sakte hain.
+                Aap doosri categories check kar sakte hain ya Admin panel se naye products add kar sakte hain.
               </p>
               <Link
                 href="/"
@@ -227,7 +219,7 @@ export default function BrowsePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 text-sm">
-        Loading Ads...
+        Loading Products...
       </div>
     }>
       <BrowseContent />

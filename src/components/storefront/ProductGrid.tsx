@@ -82,8 +82,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
             <Layers className="w-6 h-6" />
           </div>
-          <h4 className="text-base font-bold text-slate-800 mb-1">Abhi Koi Ads Available Nahi Hain</h4>
-          <p className="text-xs text-slate-500 mb-3">Admin panel se nayi categories aur ads add karein.</p>
+          <h4 className="text-base font-bold text-slate-800 mb-1">Abhi Koi Products Available Nahi Hain</h4>
+          <p className="text-xs text-slate-500 mb-3">Admin panel se nayi categories aur products add karein.</p>
         </div>
       </section>
     );
@@ -96,7 +96,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-slate-200">
         <div>
           <h3 className="text-lg sm:text-xl font-black text-slate-900 capitalize">
-            {selectedCategory === 'all' ? 'Featured Category Ads' : selectedCategory.replace('-', ' ')}
+            {selectedCategory === 'all' ? 'Featured Categories' : selectedCategory.replace('-', ' ')}
           </h3>
           <p className="text-[11px] sm:text-xs text-slate-500">
             Freshly listed items & deals in {STORE_LOCATION}
@@ -133,11 +133,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         </div>
       </div>
 
-      {/* Category Sections: 1 Line with 7 Ads each */}
+      {/* Category Sections: 1 Line with 7 Items each */}
       {groupedCategories.length > 0 ? (
         <div className="space-y-8 sm:space-y-12">
           {groupedCategories.map((group) => {
-            // Take top 7 ads for the 1-line showcase
+            // Take top 7 products for the 1-line showcase
             const lineAds = group.items.slice(0, 7);
 
             return (
@@ -151,7 +151,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-6 bg-brand-500 rounded-full"></span>
                     <h4 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
-                      {group.name} Ads
+                      {group.name}
                     </h4>
                     <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                       {group.items.length} items
@@ -168,21 +168,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   </Link>
                 </div>
 
-                {/* 1 Line Row displaying 7 Ads (Responsive 7 Grid columns / Scrollable) */}
+                {/* 1 Line Row displaying 7 items (Responsive 7 Grid columns / Scrollable) */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-3">
                   {lineAds.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
 
-                {/* Bottom link if more ads exist */}
+                {/* Bottom link if more products exist */}
                 {group.items.length > 7 && (
                   <div className="mt-3 text-right">
                     <Link
                       href={`/browse?category=${encodeURIComponent(group.slug || group.id)}`}
                       className="text-xs font-semibold text-slate-500 hover:text-brand-600 inline-flex items-center gap-1"
                     >
-                      <span>Explore {group.items.length - 7} more ads from {group.name}...</span>
+                      <span>Explore {group.items.length - 7} more products from {group.name}...</span>
                       <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>

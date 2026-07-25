@@ -42,7 +42,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenSearch, 
         }`}
       >
         <Search className="w-5 h-5 mb-0.5" />
-        <span>Browse Ads</span>
+        <span>Browse</span>
       </Link>
 
       {/* 3. Cart Button with Counter Badge */}
