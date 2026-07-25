@@ -161,9 +161,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   {/* View All link */}
                   <Link
                     href={`/browse?category=${encodeURIComponent(group.slug || group.id)}`}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60 shrink-0"
                   >
-                    <span>View all in {group.name}</span>
+                    <span>View all</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
