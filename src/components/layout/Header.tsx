@@ -16,7 +16,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = () => {
   const router = useRouter();
   const { cart, setIsCartOpen, subtotal, amountAwayFromFreeDelivery } = useCart();
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, logout, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = () => {
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full hover:bg-slate-100 transition-colors text-slate-700 border border-slate-200/80"
+                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full hover:bg-slate-100 transition-colors text-slate-700 border border-slate-200/80 cursor-pointer"
                   >
                     {renderAvatar()}
                     <span className="hidden lg:inline text-xs font-extrabold text-slate-800 truncate max-w-[90px]">
@@ -197,10 +197,13 @@ export const Header: React.FC<HeaderProps> = () => {
                     </div>
                   )}
                 </div>
+              ) : loading ? (
+                /* Auth Loading Skeleton (prevents flashing Login/Signup button) */
+                <div className="w-[120px] h-[36px] bg-slate-100 animate-pulse rounded-full border border-slate-200/60 shrink-0" />
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-full shadow-sm transition-all active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
                   <User className="w-4 h-4" />
                   <span>Login / Sign Up</span>

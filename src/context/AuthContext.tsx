@@ -34,7 +34,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  // Synchronous cache read on mount so logged-in user is populated instantly (0ms flash)
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedUser = localStorage.getItem('adnan_user');
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser);
+          if (parsed && typeof parsed === 'object' && parsed.uid) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to parse cached adnan_user:', e);
+      }
+    }
+    return null;
+  });
+
   const [loading, setLoading] = useState(true);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
 
@@ -48,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (userSnap.exists()) {
             const data = userSnap.data() as UserProfile;
-            setUser({
+            const fullProfile: UserProfile = {
               ...data,
               uid: firebaseUser.uid,
               name: firebaseUser.displayName || data.name || 'Customer',
@@ -56,7 +73,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               photoURL: firebaseUser.photoURL || data.photoURL,
               // Admin role strictly driven by Firestore database field isAdmin == true
               isAdmin: Boolean(data.isAdmin)
-            });
+            };
+
+            setUser(fullProfile);
+            try { localStorage.setItem('adnan_user', JSON.stringify(fullProfile)); } catch (e) {}
 
             if (!data.phone || !data.address) {
               setOnboardingOpen(true);
@@ -80,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             await setDoc(userDocRef, newProfile);
             setUser(newProfile);
+            try { localStorage.setItem('adnan_user', JSON.stringify(newProfile)); } catch (e) {}
             setOnboardingOpen(true);
           }
         } catch (e) {
@@ -89,21 +110,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             try {
               setUser(JSON.parse(savedUser));
             } catch {
-              setUser(null);
+              // Keep existing state
             }
           }
         }
       } else {
-        const savedUser = localStorage.getItem('adnan_user');
-        if (savedUser) {
-          try {
-            setUser(JSON.parse(savedUser));
-          } catch {
-            setUser(null);
-          }
-        } else {
-          setUser(null);
-        }
+        setUser(null);
+        try { localStorage.removeItem('adnan_user'); } catch (e) {}
       }
       setLoading(false);
     });
