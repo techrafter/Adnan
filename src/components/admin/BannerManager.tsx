@@ -217,21 +217,85 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
             );
           })}
         </div>
+      {/* Banners Grid List */}
+      {banners.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {banners.map((b) => {
+            const isExpired = checkIsExpired(b);
+
+            return (
+              <div
+                key={b.id}
+                className={`bg-white rounded-2xl border transition-all overflow-hidden shadow-xs flex flex-col ${
+                  isExpired ? 'border-red-200 bg-red-50/30' : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                {/* Banner Image Preview */}
+                <div className="relative w-full h-40 bg-slate-900 overflow-hidden group">
+                  <Image
+                    src={getOptimizedImageUrl(b.image, 600)}
+                    alt="Storefront Banner"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                    {isExpired ? (
+                      <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Expired
+                      </span>
+                    ) : b.isActive !== false ? (
+                      <span className="bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Active Banner
+                      </span>
+                    ) : (
+                      <span className="bg-slate-700 text-slate-200 text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Disabled
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Banner Info */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="text-[11px] space-y-1 text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-500">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span className="font-semibold">
+                          {b.isForever || !b.expiresAt
+                            ? 'Never Expires (Forever)'
+                            : `Expires: ${new Date(b.expiresAt).toLocaleString()}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <button
+                      onClick={() => openEditModal(b)}
+                      className="text-xs font-bold text-slate-600 hover:text-brand-600 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>Edit Details</span>
+                    </button>
+
+                    <button
+                      onClick={() => onDeleteBanner(b.id)}
+                      className="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Banner</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <div className="bg-white rounded-3xl p-12 text-center max-w-md mx-auto border border-slate-200 shadow-xs">
-          <div className="w-14 h-14 bg-emerald-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-3">
-            <ImageIcon className="w-7 h-7" />
-          </div>
-          <h4 className="text-base font-extrabold text-slate-900 mb-1">No Custom Banners Yet</h4>
-          <p className="text-xs text-slate-500 mb-4">
-            Upload custom promo banners with Cloudinary and expiration timing to display auto-sliding banners on storefront home page.
-          </p>
-          <button
-            onClick={openCreateModal}
-            className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-sm"
-          >
-            Upload First Banner
-          </button>
+        <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-xs">
+          <p className="text-xs text-slate-500 font-semibold">Abhi koi banner add nahi hua. Ooper button press karke naya banner add karein.</p>
         </div>
       )}
 
@@ -292,44 +356,6 @@ export const BannerManager: React.FC<BannerManagerProps> = ({
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 </div>
-              </div>
-
-              {/* Title & Subtitle */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Banner Headline Title (Optional)</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Fresh Organic Grocery Deals 50% Off"
-                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Subtitle Text (Optional)</label>
-                <input
-                  type="text"
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
-                  placeholder="e.g. Free Express Doorstep Delivery in Razzar"
-                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Target Link */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">On Click Destination (Category)</label>
-                <select
-                  value={targetCategory}
-                  onChange={(e) => setTargetCategory(e.target.value)}
-                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold cursor-pointer"
-                >
-                  <option value="">None (Static Banner)</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.slug}>{c.name}</option>
-                  ))}
-                </select>
               </div>
 
               {/* Expiration Settings */}

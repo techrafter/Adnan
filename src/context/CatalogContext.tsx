@@ -85,11 +85,13 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     const unsubBanner = subscribeToBanners((items) => {
-      setBanners(items || []);
+      if (items && items.length > 0) {
+        setBanners(items);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_BANNER_KEY, JSON.stringify(items));
+        } catch (e) {}
+      }
       setIsLoading(false);
-      try {
-        localStorage.setItem(LOCAL_STORAGE_BANNER_KEY, JSON.stringify(items || []));
-      } catch (e) {}
     });
 
     return () => {
