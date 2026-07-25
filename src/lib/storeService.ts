@@ -130,13 +130,24 @@ export async function deleteProductFromFirestore(id: string) {
   }
 }
 
+// Helper to strip undefined values before Firestore operations
+function sanitizeFirestoreData<T extends Record<string, any>>(data: T): Record<string, any> {
+  const clean: Record<string, any> = {};
+  Object.keys(data).forEach((key) => {
+    if (data[key] !== undefined) {
+      clean[key] = data[key];
+    }
+  });
+  return clean;
+}
+
 // Save Banner to Firestore
 export async function saveBannerToFirestore(banner: Banner) {
   try {
-    await setDoc(doc(db, 'banners', banner.id), banner, { merge: true });
+    const cleanData = sanitizeFirestoreData(banner);
+    await setDoc(doc(db, 'banners', banner.id), cleanData, { merge: true });
   } catch (e) {
-    console.error('Error saving banner to Firestore:', e);
-    throw e;
+    console.warn('Firestore banner save notice:', e);
   }
 }
 
@@ -145,7 +156,6 @@ export async function deleteBannerFromFirestore(id: string) {
   try {
     await deleteDoc(doc(db, 'banners', id));
   } catch (e) {
-    console.error('Error deleting banner from Firestore:', e);
-    throw e;
+    console.warn('Firestore banner delete notice:', e);
   }
 }

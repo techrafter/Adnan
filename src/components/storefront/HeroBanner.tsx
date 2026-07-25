@@ -13,9 +13,11 @@ export const HeroBanner: React.FC = () => {
 
   // Filter active and non-expired banners
   const activeBanners = (banners || []).filter((b) => {
+    if (!b || !b.image) return false;
     if (b.isActive === false) return false;
     if (b.isForever === false && b.expiresAt) {
-      return new Date(b.expiresAt).getTime() > Date.now();
+      const expTime = new Date(b.expiresAt).getTime();
+      if (!isNaN(expTime) && expTime < Date.now()) return false;
     }
     return true;
   });
