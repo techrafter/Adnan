@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = () => {
   const router = useRouter();
-  const { cart, setIsCartOpen, subtotal } = useCart();
+  const { cart, setIsCartOpen, subtotal, amountAwayFromFreeDelivery } = useCart();
   const { user, isAdmin, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -52,9 +52,17 @@ export const Header: React.FC<HeaderProps> = () => {
   return (
     <>
       <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-xs transition-all">
-        {/* Top Announcement Bar (Hidden on Mobile for App Compactness) */}
-        <div className="hidden sm:flex bg-brand-900 text-emerald-100 text-xs py-1.5 px-4 text-center font-semibold items-center justify-center gap-2 tracking-wide">
-          <span>✨ First Premier Online Grocery Store in <strong className="text-white underline">{STORE_LOCATION}</strong> | Ultra-Fast Express Doorstep Delivery</span>
+        {/* Top Free Delivery Threshold Announcement Bar (Visible Everywhere) */}
+        <div className="bg-brand-900 text-emerald-100 text-[11px] sm:text-xs py-1.5 px-3 sm:px-4 text-center font-bold flex items-center justify-center gap-2 tracking-wide">
+          {amountAwayFromFreeDelivery > 0 ? (
+            <span>
+              💵 You are <span className="font-extrabold text-amber-300 underline">Rs. {amountAwayFromFreeDelivery}</span> away from <strong>FREE Home Delivery</strong> in {STORE_LOCATION}!
+            </span>
+          ) : (
+            <span className="text-emerald-300 font-extrabold flex items-center justify-center gap-1">
+              🎉 Congratulations! You have unlocked FREE Home Delivery in {STORE_LOCATION}!
+            </span>
+          )}
         </div>
 
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
