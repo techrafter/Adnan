@@ -39,6 +39,13 @@ export const Header: React.FC<HeaderProps> = () => {
     }
   };
 
+  const handleNavClick = (tab: string) => {
+    setIsDropdownOpen(false);
+    if (typeof window !== 'undefined') {
+      window.location.href = `/profile?tab=${tab}`;
+    }
+  };
+
   // User avatar helper
   const renderAvatar = () => {
     if (user?.photoURL) {
@@ -147,41 +154,41 @@ export const Header: React.FC<HeaderProps> = () => {
                         </div>
 
                         <div className="py-1">
-                          <Link
-                            href="/profile?tab=profile"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          <button
+                            type="button"
+                            onClick={() => handleNavClick('profile')}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors text-left cursor-pointer"
                           >
                             <User className="w-4 h-4 text-slate-400" />
                             <span>My Profile</span>
-                          </Link>
+                          </button>
 
-                          <Link
-                            href="/profile?tab=orders"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          <button
+                            type="button"
+                            onClick={() => handleNavClick('orders')}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors text-left cursor-pointer"
                           >
                             <Package className="w-4 h-4 text-slate-400" />
                             <span>Order History</span>
-                          </Link>
+                          </button>
 
-                          <Link
-                            href="/profile?tab=addresses"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          <button
+                            type="button"
+                            onClick={() => handleNavClick('addresses')}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors text-left cursor-pointer"
                           >
                             <Map className="w-4 h-4 text-slate-400" />
                             <span>Saved Addresses</span>
-                          </Link>
+                          </button>
 
-                          <Link
-                            href="/profile?tab=settings"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+                          <button
+                            type="button"
+                            onClick={() => handleNavClick('settings')}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors text-left cursor-pointer"
                           >
                             <Settings className="w-4 h-4 text-slate-400" />
                             <span>Account Settings</span>
-                          </Link>
+                          </button>
 
                           {/* Admin CMS option - Opens Admin Panel in a NEW SEPARATE TAB */}
                           {isAdmin && (

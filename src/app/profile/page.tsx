@@ -28,12 +28,23 @@ function ProfileContent() {
 
   // Sync searchParams URL query to activeTab state whenever URL changes
   useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'profile' || tabParam === 'orders' || tabParam === 'addresses' || tabParam === 'settings') {
-      setActiveTab(tabParam);
-    } else if (!tabParam) {
-      setActiveTab('profile');
-    }
+    const syncTab = () => {
+      let t: string | null = null;
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        t = urlParams.get('tab');
+      }
+      if (!t) {
+        t = searchParams.get('tab');
+      }
+      if (t === 'profile' || t === 'orders' || t === 'addresses' || t === 'settings') {
+        setActiveTab(t);
+      } else if (!t) {
+        setActiveTab('profile');
+      }
+    };
+
+    syncTab();
   }, [searchParams]);
 
   const handleTabChange = (tab: 'profile' | 'orders' | 'addresses' | 'settings') => {

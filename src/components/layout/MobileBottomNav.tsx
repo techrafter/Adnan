@@ -97,7 +97,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenSearch, 
             if (!user) {
               onOpenAuth();
             } else {
-              router.push('/profile');
+              if (typeof window !== 'undefined') {
+                window.location.href = '/profile';
+              }
             }
           }}
           className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all relative ${
