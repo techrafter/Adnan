@@ -49,7 +49,7 @@ export const CartDrawer: React.FC = () => {
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
       />
 
-      <div className="fixed inset-0 sm:inset-y-0 sm:right-0 max-w-full flex pl-0 sm:pl-10">
+      <div className="fixed inset-0 sm:inset-y-0 sm:left-auto sm:right-0 max-w-full flex justify-end pl-0 sm:pl-10">
         <div className="w-full h-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col justify-between">
           
           {/* Header */}
