@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
+import { CatalogProvider } from '@/context/CatalogContext';
 
 export const metadata: Metadata = {
   title: 'Adnan Super Store - Online Grocery & Supermarket (Razzar)',
@@ -36,9 +37,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-brand-500 selection:text-white">
         <AuthProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
+          <CatalogProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </CatalogProvider>
         </AuthProvider>
       </body>
     </html>

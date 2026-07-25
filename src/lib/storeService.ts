@@ -19,19 +19,13 @@ export function subscribeToCategories(
     return onSnapshot(
       categoriesRef,
       (snapshot) => {
-        if (!snapshot.empty) {
-          const items: Category[] = [];
-          snapshot.forEach((docSnap) => {
-            items.push({ id: docSnap.id, ...docSnap.data() } as Category);
-          });
-          onUpdate(items);
+        const items: Category[] = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() } as Category);
+        });
+        onUpdate(items);
+        if (items.length > 0) {
           localStorage.setItem('adnan_categories', JSON.stringify(items));
-        } else {
-          // If Firestore collection is empty, check local storage
-          const saved = localStorage.getItem('adnan_categories');
-          if (saved) {
-            try { onUpdate(JSON.parse(saved)); } catch (e) {}
-          }
         }
       },
       (error) => {
@@ -53,18 +47,13 @@ export function subscribeToProducts(
     return onSnapshot(
       productsRef,
       (snapshot) => {
-        if (!snapshot.empty) {
-          const items: Product[] = [];
-          snapshot.forEach((docSnap) => {
-            items.push({ id: docSnap.id, ...docSnap.data() } as Product);
-          });
-          onUpdate(items);
+        const items: Product[] = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() } as Product);
+        });
+        onUpdate(items);
+        if (items.length > 0) {
           localStorage.setItem('adnan_products', JSON.stringify(items));
-        } else {
-          const saved = localStorage.getItem('adnan_products');
-          if (saved) {
-            try { onUpdate(JSON.parse(saved)); } catch (e) {}
-          }
         }
       },
       (error) => {

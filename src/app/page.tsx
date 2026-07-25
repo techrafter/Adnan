@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { CategoryNav } from '@/components/layout/CategoryNav';
 import { DeliveryThreshold } from '@/components/storefront/DeliveryThreshold';
@@ -13,47 +13,14 @@ import { QuickSearchModal } from '@/components/storefront/QuickSearchModal';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Footer } from '@/components/layout/Footer';
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mockData';
-import { Category, Product } from '@/types';
-
-import { subscribeToCategories, subscribeToProducts } from '@/lib/storeService';
+import { useCatalog } from '@/context/CatalogContext';
 
 export default function HomePage() {
+  const { categories, products } = useCatalog();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-
-  const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
-
-  // Sync state with Firestore database real-time listeners and LocalStorage
-  useEffect(() => {
-    const unsubCat = subscribeToCategories((items) => {
-      if (items && items.length > 0) setCategories(items);
-    });
-    const unsubProd = subscribeToProducts((items) => {
-      if (items && items.length > 0) setProducts(items);
-    });
-
-    try {
-      const savedCategories = localStorage.getItem('adnan_categories');
-      if (savedCategories) {
-        setCategories(JSON.parse(savedCategories));
-      }
-      const savedProducts = localStorage.getItem('adnan_products');
-      if (savedProducts) {
-        setProducts(JSON.parse(savedProducts));
-      }
-    } catch (e) {
-      console.warn('Failed to load saved catalog state:', e);
-    }
-
-    return () => {
-      unsubCat();
-      unsubProd();
-    };
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50 pb-16 sm:pb-0">
@@ -66,7 +33,11 @@ export default function HomePage() {
         <CategoryNav
           categories={categories}
           selectedCategory={selectedCategory}
-          onSelectCategory={(slug) => setSelectedCategory(slug)}
+          onSelectCategory={(slug) => {
+            setSelectedCategory(slug);
+            const el = document.getElementById(`category-section-${slug}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
         />
 
         {/* Centered Delivery threshold bar (Rs. X away from checkout) */}
@@ -85,6 +56,7 @@ export default function HomePage() {
         {/* Product Catalog Grid with Stock Badges & Add buttons */}
         <ProductGrid
           products={products}
+          categories={categories}
           selectedCategory={selectedCategory}
           searchQuery={searchQuery}
         />

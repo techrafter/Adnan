@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Adnan Super Store</string>
     <string name="store_location">Razzar</string>
-    <string name="default_url">http://localhost:3000</string>
+    <string name="default_url">https://adnanweb.vercel.app/</string>
 </resources>

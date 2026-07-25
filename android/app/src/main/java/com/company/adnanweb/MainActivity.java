@@ -13,6 +13,9 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -22,10 +25,10 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefresh;
     private ValueCallback<Uri[]> uploadMessage;
-    private static final int REQUEST_SELECT_FILE = 100;
+    private ActivityResultLauncher<Intent> fileChooserLauncher;
 
-    // Default Web App URL
-    private static final String STORE_WEB_URL = "http://localhost:3000";
+    // Live Production Web URL for Adnan Super Store
+    private static final String STORE_WEB_URL = "https://adnanweb.vercel.app/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +39,41 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         swipeRefresh = findViewById(R.id.swipeRefresh);
 
+        // Register modern Activity Result Launcher for payment screenshot uploads
+        fileChooserLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (uploadMessage == null) return;
+                Uri[] results = null;
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String dataString = result.getData().getDataString();
+                    if (dataString != null) {
+                        results = new Uri[]{Uri.parse(dataString)};
+                    }
+                }
+                uploadMessage.onReceiveValue(results);
+                uploadMessage = null;
+            }
+        );
+
+        // Handle back button navigation modern callback
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (webView != null && webView.canGoBack()) {
+                    webView.goBack();
+                } else {
+                    finish();
+                }
+            }
+        });
+
         setupWebView();
 
+        // Fix WebView scrolling conflict: Only enable pull-to-refresh when scrolled to top
+        swipeRefresh.setOnChildScrollUpCallback((parent, child) -> webView.getScrollY() > 0);
         swipeRefresh.setOnRefreshListener(() -> webView.reload());
+
         webView.loadUrl(STORE_WEB_URL);
     }
 
@@ -51,6 +86,14 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowContentAccess(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
+        webSettings.setBuiltInZoomControls(false);
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setSupportZoom(false);
+
+        // Enable smooth vertical touch scrolling
+        webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        webView.setVerticalScrollBarEnabled(true);
+        webView.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -100,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = fileChooserParams.createIntent();
                 try {
-                    startActivityForResult(intent, REQUEST_SELECT_FILE);
+                    fileChooserLauncher.launch(intent);
                 } catch (Exception e) {
                     uploadMessage = null;
                     Toast.makeText(MainActivity.this, "Cannot Open File Picker", Toast.LENGTH_LONG).show();
@@ -109,24 +152,5 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        if (requestCode == REQUEST_SELECT_FILE) {
-            if (uploadMessage == null) return;
-            uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, intent));
-            uploadMessage = null;
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
-        }
     }
 }

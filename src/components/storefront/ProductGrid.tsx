@@ -1,50 +1,111 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Product } from '@/types';
+import Link from 'next/link';
+import { Product, Category } from '@/types';
 import { ProductCard } from './ProductCard';
 import { STORE_LOCATION } from '@/lib/mockData';
-import { SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { SlidersHorizontal, ArrowUpDown, ArrowRight, ChevronRight, Layers } from 'lucide-react';
 
 interface ProductGridProps {
   products: Product[];
-  selectedCategory: string;
-  searchQuery: string;
+  categories?: Category[];
+  selectedCategory?: string;
+  searchQuery?: string;
 }
 
-export const ProductGrid: React.FC<ProductGridProps> = ({ products, selectedCategory, searchQuery }) => {
+export const ProductGrid: React.FC<ProductGridProps> = ({ 
+  products = [], 
+  categories = [], 
+  selectedCategory = 'all', 
+  searchQuery = '' 
+}) => {
   const [sortBy, setSortBy] = useState<'featured' | 'low-high' | 'high-low' | 'discount'>('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
 
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter((product) => {
-        const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-        const matchesSearch =
-          !searchQuery ||
-          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStock = !inStockOnly || product.inStock;
-        return matchesCategory && matchesSearch && matchesStock;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'low-high') return a.price - b.price;
-        if (sortBy === 'high-low') return b.price - a.price;
-        if (sortBy === 'discount') return (b.discountPercentage || 0) - (a.discountPercentage || 0);
-        return 0;
+  // Group products by category
+  const groupedCategories = useMemo(() => {
+    // Filter products by search and stock first
+    const filtered = products.filter((p) => {
+      const matchesSearch =
+        !searchQuery ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStock = !inStockOnly || p.inStock;
+      return matchesSearch && matchesStock;
+    }).sort((a, b) => {
+      if (sortBy === 'low-high') return a.price - b.price;
+      if (sortBy === 'high-low') return b.price - a.price;
+      if (sortBy === 'discount') return (b.discountPercentage || 0) - (a.discountPercentage || 0);
+      return 0;
+    });
+
+    if (categories.length === 0) {
+      // Fallback: group by raw category strings in product list
+      const map: { [catSlug: string]: { name: string; slug: string; id: string; items: Product[] } } = {};
+      filtered.forEach((p) => {
+        const catKey = p.category || 'other';
+        if (!map[catKey]) {
+          map[catKey] = {
+            id: catKey,
+            slug: catKey,
+            name: catKey.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            items: []
+          };
+        }
+        map[catKey].items.push(p);
       });
-  }, [products, selectedCategory, searchQuery, sortBy, inStockOnly]);
+      return Object.values(map);
+    }
+
+    // Map according to Firebase categories
+    return categories
+      .map((cat) => {
+        const catProducts = filtered.filter((p) => 
+          p.category === cat.slug || p.category === cat.id || p.category === cat.name
+        );
+        return {
+          id: cat.id,
+          slug: cat.slug,
+          name: cat.name,
+          icon: cat.icon,
+          items: catProducts
+        };
+      })
+      .filter((catGroup) => {
+        if (selectedCategory !== 'all') {
+          return catGroup.slug === selectedCategory || catGroup.id === selectedCategory;
+        }
+        return catGroup.items.length > 0;
+      });
+  }, [products, categories, selectedCategory, searchQuery, sortBy, inStockOnly]);
+
+  if (products.length === 0) {
+    return (
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-3xl p-8 text-center max-w-md mx-auto border border-slate-200 shadow-xs">
+          <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
+            <Layers className="w-6 h-6" />
+          </div>
+          <h4 className="text-base font-bold text-slate-800 mb-1">Abhi Koi Ads Available Nahi Hain</h4>
+          <p className="text-xs text-slate-500 mb-3">Admin panel se nayi categories aur ads add karein.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
       
-      {/* Top Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+      {/* Top Filter & Sort Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-slate-200">
         <div>
           <h3 className="text-lg sm:text-xl font-black text-slate-900 capitalize">
-            {selectedCategory === 'all' ? 'All Essentials & Grocery' : selectedCategory.replace('-', ' ')}
+            {selectedCategory === 'all' ? 'Featured Category Ads' : selectedCategory.replace('-', ' ')}
           </h3>
-          <p className="text-[11px] sm:text-xs text-slate-500">Showing {filteredProducts.length} items available for {STORE_LOCATION} delivery</p>
+          <p className="text-[11px] sm:text-xs text-slate-500">
+            Freshly listed items & deals in {STORE_LOCATION}
+          </p>
         </div>
 
         {/* Controls */}
@@ -77,12 +138,63 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, selectedCate
         </div>
       </div>
 
-      {/* Grid Display (Compact 2-Column App Grid on Mobile) */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+      {/* Category Sections: 1 Line with 7 Ads each */}
+      {groupedCategories.length > 0 ? (
+        <div className="space-y-8 sm:space-y-12">
+          {groupedCategories.map((group) => {
+            // Take top 7 ads for the 1-line showcase
+            const lineAds = group.items.slice(0, 7);
+
+            return (
+              <div 
+                key={group.id} 
+                id={`category-section-${group.slug || group.id}`}
+                className="scroll-mt-24 pt-2 border-b border-slate-100 pb-6 sm:pb-8 last:border-0"
+              >
+                {/* Category Header */}
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-6 bg-brand-500 rounded-full"></span>
+                    <h4 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                      {group.name} Ads
+                    </h4>
+                    <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                      {group.items.length} items
+                    </span>
+                  </div>
+
+                  {/* View All link */}
+                  <Link
+                    href={`/browse?category=${encodeURIComponent(group.slug || group.id)}`}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60"
+                  >
+                    <span>View all in {group.name}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+
+                {/* 1 Line Row displaying 7 Ads (Responsive 7 Grid columns / Scrollable) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-3">
+                  {lineAds.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {/* Bottom link if more ads exist */}
+                {group.items.length > 7 && (
+                  <div className="mt-3 text-right">
+                    <Link
+                      href={`/browse?category=${encodeURIComponent(group.slug || group.id)}`}
+                      className="text-xs font-semibold text-slate-500 hover:text-brand-600 inline-flex items-center gap-1"
+                    >
+                      <span>Explore {group.items.length - 7} more ads from {group.name}...</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="bg-slate-50 rounded-3xl p-8 text-center max-w-md mx-auto my-6 border border-slate-200">
@@ -97,3 +209,4 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, selectedCate
     </section>
   );
 };
+
