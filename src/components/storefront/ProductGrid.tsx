@@ -168,8 +168,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   </Link>
                 </div>
 
-                {/* 1 Line Row displaying items (4 on mobile & tablet, 7 on PC) */}
-                <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-1.5 sm:gap-2.5 lg:gap-3">
+                {/* 1 Line Row displaying items (3 on mobile, 4 on tablet, 7 on PC) */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-2.5 lg:gap-3">
                   {lineAds.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
