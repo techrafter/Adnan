@@ -36,7 +36,7 @@ export const HeroBanner: React.FC = () => {
   const slide = activeBanners[activeSlide % activeBanners.length];
 
   const content = (
-    <div className="relative w-full h-[180px] sm:h-[260px] md:h-[320px] rounded-3xl overflow-hidden shadow-md bg-slate-100 border border-slate-200">
+    <div className="relative w-full aspect-[3.5/1] sm:aspect-[4/1] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm bg-slate-100 border border-slate-200/80">
       <Image
         src={getOptimizedImageUrl(slide.image, 1400)}
         alt={slide.title || 'Store Banner'}
