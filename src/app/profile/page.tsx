@@ -82,70 +82,55 @@ function ProfileContent() {
   }, [user]);
 
   const fetchUserOrders = async () => {
-    if (!user) return;
+    if (!user) {
+      setOrders([]);
+      setOrdersLoading(false);
+      return;
+    }
     setOrdersLoading(true);
+    const fetchedOrders: Order[] = [];
+
+    // 1. Fetch real user orders from Firestore database
     try {
       const q = query(
         collection(db, 'orders'),
         where('customerPhone', '==', user.phone || '')
       );
       const querySnap = await getDocs(q);
-      const fetchedOrders: Order[] = [];
       querySnap.forEach((docSnap) => {
         fetchedOrders.push({ id: docSnap.id, ...docSnap.data() } as Order);
       });
+    } catch (e) {
+      console.warn('Firestore orders fetch fallback:', e);
+    }
 
-      fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      
-      if (fetchedOrders.length > 0) {
-        setOrders(fetchedOrders);
-      } else {
-        setOrders([
-          {
-            id: 'ORD-984321',
-            userId: user.uid,
-            customerName: user.name,
-            customerPhone: user.phone || '+923001234567',
-            address: user.address || 'House 14, Street 2, Shve Ada City',
-            city: 'Shve Ada City',
-            items: [
-              { productId: '1', name: 'Super Kernel Basmati Rice 5kg', price: 1450, quantity: 1, unit: '5 kg' },
-              { productId: '2', name: 'Olpers Full Cream Milk 1L', price: 280, quantity: 2, unit: '1 L' }
-            ],
-            subtotal: 2010,
-            discount: 100,
-            deliveryFee: 0,
-            totalAmount: 1910,
-            paymentMethod: 'EasyPaisa',
-            receiptUrl: 'https://res.cloudinary.com/demo/image/upload/v1631234567/receipt_sample.jpg',
-            status: 'Delivered',
-            createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
-          },
-          {
-            id: 'ORD-771239',
-            userId: user.uid,
-            customerName: user.name,
-            customerPhone: user.phone || '+923001234567',
-            address: user.address || 'House 14, Street 2, Shve Ada City',
-            city: 'Shve Ada City',
-            items: [
-              { productId: '3', name: 'Fresh Farm Apples', price: 320, quantity: 2, unit: '1 kg' }
-            ],
-            subtotal: 640,
-            discount: 0,
-            deliveryFee: 50,
-            totalAmount: 690,
-            paymentMethod: 'Cash on Delivery',
-            status: 'Shipped',
-            createdAt: new Date(Date.now() - 3600000 * 4).toISOString()
-          }
-        ]);
+    // 2. Fetch real orders placed in this session/device from localStorage stream
+    try {
+      const savedOrders = localStorage.getItem('adnan_orders');
+      if (savedOrders) {
+        const localOrders: Order[] = JSON.parse(savedOrders);
+        if (Array.isArray(localOrders)) {
+          localOrders.forEach((o) => {
+            if (!fetchedOrders.some((f) => f.id === o.id)) {
+              if (
+                (user.phone && o.customerPhone === user.phone) ||
+                (user.name && o.customerName === user.name) ||
+                (user.uid && o.userId === user.uid) ||
+                !o.userId
+              ) {
+                fetchedOrders.push(o);
+              }
+            }
+          });
+        }
       }
     } catch (e) {
-      console.warn('Orders fetch error fallback active:', e);
-    } finally {
-      setOrdersLoading(false);
+      console.warn('LocalStorage orders fetch error:', e);
     }
+
+    fetchedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    setOrders(fetchedOrders);
+    setOrdersLoading(false);
   };
 
   const handleProfileSave = async (e: React.FormEvent) => {
@@ -330,9 +315,9 @@ function ProfileContent() {
                   ) : orders.length === 0 ? (
                     <div className="py-12 text-center">
                       <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                      <h4 className="text-sm font-bold text-slate-700">No Past Orders Found</h4>
-                      <p className="text-xs text-slate-400 mt-1 mb-4">Start browsing fresh items in Shve Ada City.</p>
-                      <Link href="/" className="px-5 py-2.5 bg-brand-600 text-white font-bold text-xs rounded-xl hover:bg-brand-700">
+                      <h4 className="text-base font-extrabold text-slate-800">You have no order history</h4>
+                      <p className="text-xs text-slate-400 mt-1 mb-5">Place your first grocery order to track real-time delivery and order receipts here.</p>
+                      <Link href="/" className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all inline-block">
                         Start Shopping
                       </Link>
                     </div>
