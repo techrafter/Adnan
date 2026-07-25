@@ -50,32 +50,32 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
         )}
       </div>
 
-      {/* Grid of Category Thumbnails */}
-      <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-2 sm:gap-4">
+      {/* Grid of 9 Compact Category Thumbnails per line */}
+      <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 gap-1.5 sm:gap-2.5">
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat.slug;
           return (
             <button
               key={cat.id}
               onClick={() => handleCategoryClick(cat)}
-              className={`group relative flex flex-col items-center justify-between p-2 sm:p-3 rounded-2xl transition-all duration-200 text-center cursor-pointer ${
+              className={`group relative flex flex-col items-center justify-start p-1.5 sm:p-2 rounded-2xl transition-all duration-200 text-center cursor-pointer min-w-0 w-full ${
                 isSelected
-                  ? 'bg-emerald-50 border-2 border-brand-500 shadow-md scale-102'
-                  : 'bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 hover:shadow-xs'
+                  ? 'bg-emerald-50 border-2 border-brand-500 shadow-sm scale-102'
+                  : 'bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 hover:shadow-2xs'
               }`}
             >
-              {/* Category Icon / Image */}
-              <div className="relative w-12 h-12 sm:w-20 sm:h-20 mb-1 rounded-xl overflow-hidden bg-slate-50 p-0.5 shadow-xs group-hover:scale-105 transition-transform border border-slate-100">
+              {/* Category Icon / Thumbnail */}
+              <div className="relative w-10 h-10 sm:w-14 sm:h-14 mb-1 rounded-xl overflow-hidden bg-slate-50 p-0.5 shadow-2xs group-hover:scale-105 transition-transform border border-slate-100 shrink-0">
                 <Image
-                  src={getOptimizedImageUrl(cat.icon || '/placeholder.png', 150)}
+                  src={getOptimizedImageUrl(cat.icon || '/placeholder.png', 120)}
                   alt={cat.name}
                   fill
                   className="object-cover rounded-lg"
                 />
               </div>
 
-              {/* Title */}
-              <span className={`text-[10px] sm:text-xs font-extrabold leading-tight line-clamp-1 ${
+              {/* Title with Full Visibility (No line-clamp truncation) */}
+              <span className={`text-[10px] sm:text-[11px] font-extrabold leading-tight break-words text-center w-full mt-0.5 ${
                 isSelected ? 'text-brand-900' : 'text-slate-800 group-hover:text-slate-900'
               }`}>
                 {cat.name}
