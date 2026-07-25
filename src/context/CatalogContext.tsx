@@ -191,7 +191,10 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deleteCategory,
         addProduct,
         updateProduct,
-        deleteProduct
+        deleteProduct,
+        addBanner,
+        updateBanner,
+        deleteBanner
       }}
     >
       {children}
