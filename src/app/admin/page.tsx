@@ -37,7 +37,7 @@ export default function AdminOverviewPage() {
     0
   );
   const pendingOrdersCount = orders.filter((o) => o.status === 'Pending').length;
-  const completedOrdersCount = orders.filter((o) => o.status === 'Delivered' || o.status === 'Completed').length;
+  const completedOrdersCount = orders.filter((o) => o.status === 'Delivered' || o.status === 'Shipped').length;
   const cancelledOrdersCount = orders.filter((o) => o.status === 'Cancelled').length;
 
   const outOfStockProducts = products.filter((p) => !p.inStock);
