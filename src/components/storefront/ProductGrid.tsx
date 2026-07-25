@@ -86,13 +86,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   if (products.length === 0) {
     return (
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-3xl p-8 text-center max-w-md mx-auto border border-slate-200 shadow-xs">
-          <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
-            <Layers className="w-6 h-6" />
+      <section className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 py-4 sm:py-6">
+        <div className="space-y-4">
+          <div className="h-6 bg-slate-200/70 rounded-full w-48 animate-pulse"></div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-2.5 lg:gap-3">
+            {[...Array(7)].map((_, i) => (
+              <div key={i} className="h-44 bg-slate-100 rounded-2xl animate-pulse border border-slate-200/50"></div>
+            ))}
           </div>
-          <h4 className="text-base font-bold text-slate-800 mb-1">Abhi Koi Products Available Nahi Hain</h4>
-          <p className="text-xs text-slate-500 mb-3">Admin panel se nayi categories aur products add karein.</p>
         </div>
       </section>
     );
