@@ -25,8 +25,17 @@ export const Header: React.FC<HeaderProps> = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      router.push(`/browse?search=${encodeURIComponent(searchTerm.trim())}`);
+    const query = searchTerm.trim();
+    if (query) {
+      router.push(`/browse?search=${encodeURIComponent(query)}`);
+    } else {
+      router.push('/browse');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit(e);
     }
   };
 
@@ -91,6 +100,7 @@ export const Header: React.FC<HeaderProps> = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder={`Search ads in ${STORE_LOCATION}...`}
                   className="w-full bg-transparent text-xs sm:text-sm text-slate-900 focus:outline-none placeholder:text-slate-400 font-medium"
                 />

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
-import { DeliveryThreshold } from '@/components/storefront/DeliveryThreshold';
 import { HeroBanner } from '@/components/storefront/HeroBanner';
 import { CategoryGrid } from '@/components/storefront/CategoryGrid';
 import { ProductGrid } from '@/components/storefront/ProductGrid';
@@ -27,9 +26,6 @@ export default function HomePage() {
       <div>
         {/* Main Sticky Header */}
         <Header onOpenSearch={() => setIsSearchModalOpen(true)} />
-
-        {/* Centered Delivery threshold bar (Rs. X away from checkout) */}
-        <DeliveryThreshold />
 
         {/* Hero Promo Banner Slider (Bazaar Select) */}
         <HeroBanner />
