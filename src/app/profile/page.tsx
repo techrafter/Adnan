@@ -15,15 +15,31 @@ import {
   ExternalLink, CheckCircle2, Clock, Truck, ShoppingCart, ArrowLeft 
 } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 function ProfileContent() {
+  const router = useRouter();
   const { user, updateProfileData, addAddress, removeAddress, triggerPasswordReset } = useAuth();
   const { addToCart, setIsCartOpen } = useCart();
   const searchParams = useSearchParams();
 
-  const initialTab = (searchParams.get('tab') as 'profile' | 'orders' | 'addresses' | 'settings') || 'orders';
+  const initialTab = (searchParams.get('tab') as 'profile' | 'orders' | 'addresses' | 'settings') || 'profile';
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses' | 'settings'>(initialTab);
+
+  // Sync searchParams URL query to activeTab state whenever URL changes
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'profile' || tabParam === 'orders' || tabParam === 'addresses' || tabParam === 'settings') {
+      setActiveTab(tabParam);
+    } else if (!tabParam) {
+      setActiveTab('profile');
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: 'profile' | 'orders' | 'addresses' | 'settings') => {
+    setActiveTab(tab);
+    router.push(`/profile?tab=${tab}`, { scroll: false });
+  };
 
   // Profile Form state
   const [name, setName] = useState(user?.name || '');
@@ -215,20 +231,8 @@ function ProfileContent() {
 
               <nav className="mt-6 space-y-2">
                 <button
-                  onClick={() => setActiveTab('orders')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left ${
-                    activeTab === 'orders'
-                      ? 'bg-brand-600 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <Package className="w-4 h-4" />
-                  <span>Order History & Re-Order</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('profile')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left ${
+                  onClick={() => handleTabChange('profile')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left cursor-pointer ${
                     activeTab === 'profile'
                       ? 'bg-brand-600 text-white shadow-md'
                       : 'text-slate-600 hover:bg-slate-100'
@@ -239,8 +243,20 @@ function ProfileContent() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('addresses')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left ${
+                  onClick={() => handleTabChange('orders')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left cursor-pointer ${
+                    activeTab === 'orders'
+                      ? 'bg-brand-600 text-white shadow-md'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Package className="w-4 h-4" />
+                  <span>Order History & Re-Order</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('addresses')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left cursor-pointer ${
                     activeTab === 'addresses'
                       ? 'bg-brand-600 text-white shadow-md'
                       : 'text-slate-600 hover:bg-slate-100'
@@ -251,8 +267,8 @@ function ProfileContent() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left ${
+                  onClick={() => handleTabChange('settings')}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-extrabold transition-all text-left cursor-pointer ${
                     activeTab === 'settings'
                       ? 'bg-brand-600 text-white shadow-md'
                       : 'text-slate-600 hover:bg-slate-100'

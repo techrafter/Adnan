@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = () => {
 
                         <div className="py-1">
                           <Link
-                            href="/profile"
+                            href="/profile?tab=profile"
                             onClick={() => setIsDropdownOpen(false)}
                             className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600 transition-colors"
                           >
