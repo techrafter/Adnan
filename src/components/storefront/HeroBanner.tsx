@@ -38,12 +38,12 @@ export const HeroBanner: React.FC = () => {
   const currentBanner = activeBanners[activeSlide % activeBanners.length];
 
   const renderBannerMedia = (banner: typeof currentBanner) => (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full flex items-center justify-center bg-slate-900/5">
       <Image
         src={getOptimizedImageUrl(banner.image, 1400)}
         alt={banner.title || 'Store Banner'}
         fill
-        className="object-cover"
+        className="object-contain sm:object-cover"
         priority
       />
     </div>
@@ -77,7 +77,7 @@ export const HeroBanner: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 my-3 sm:my-5">
-      <div className="relative w-full aspect-[3.2/1] sm:aspect-[4/1] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm bg-slate-100 border border-slate-200/80">
+      <div className="relative w-full aspect-[2.2/1] sm:aspect-[4/1] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm bg-slate-100 border border-slate-200/80">
         {/* Silky Smooth Crossfade Animation - Pure real image without buttons or overlays */}
         <AnimatePresence mode="popLayout">
           <motion.div

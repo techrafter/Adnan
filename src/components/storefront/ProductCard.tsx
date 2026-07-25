@@ -70,51 +70,54 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       {/* Price & Cart Add Button */}
-      <div className="pt-1.5 sm:pt-2 lg:pt-2 border-t border-slate-100 mt-1.5 sm:mt-2 flex items-center justify-between gap-1">
-        <div className="flex flex-col min-w-0">
+      <div className="pt-1.5 sm:pt-2 border-t border-slate-100 mt-1.5 sm:mt-2 flex flex-col justify-between gap-1">
+        {/* Price Display */}
+        <div className="flex flex-wrap items-baseline gap-1 min-w-0">
+          <span className="text-[11px] sm:text-xs lg:text-[13px] font-extrabold text-slate-900 truncate">
+            Rs. {product.price}
+          </span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-[9px] sm:text-[10px] lg:text-[10px] text-slate-400 line-through leading-none">
+            <span className="text-[9px] sm:text-[10px] text-slate-400 line-through leading-none">
               Rs. {product.originalPrice}
             </span>
           )}
-          <span className="text-xs sm:text-sm lg:text-[13px] font-extrabold text-slate-900 truncate">
-            Rs. {product.price}
-          </span>
         </div>
 
-        {/* Quantity Toggle / Add Button */}
-        {quantityInCart > 0 ? (
-          <div className="flex items-center bg-brand-600 text-white rounded-full p-0.5 sm:p-1 shadow-md shrink-0">
+        {/* Quantity Toggle / Add Button - Placed BELOW Price */}
+        <div className="w-full mt-0.5">
+          {quantityInCart > 0 ? (
+            <div className="flex items-center justify-between w-full bg-brand-600 text-white rounded-full p-0.5 sm:p-1 shadow-xs">
+              <button
+                onClick={() => updateQuantity(product.id, quantityInCart - 1)}
+                className="p-0.5 sm:p-1 hover:bg-brand-700 rounded-full transition-colors shrink-0"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+              </button>
+              <span className="px-1 font-bold text-[10px] sm:text-xs min-w-[14px] text-center">{quantityInCart}</span>
+              <button
+                onClick={() => updateQuantity(product.id, quantityInCart + 1)}
+                className="p-0.5 sm:p-1 hover:bg-brand-700 rounded-full transition-colors shrink-0"
+                aria-label="Increase quantity"
+              >
+                <Plus className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={() => updateQuantity(product.id, quantityInCart - 1)}
-              className="p-0.5 sm:p-1 hover:bg-brand-700 rounded-full transition-colors"
-              aria-label="Decrease quantity"
+              onClick={() => addToCart(product, 1)}
+              disabled={!product.inStock}
+              className={`w-full py-1 sm:py-1 px-2 rounded-full text-[10px] sm:text-xs font-extrabold transition-all flex items-center justify-center gap-0.5 shadow-2xs ${
+                product.inStock
+                  ? 'bg-brand-600 hover:bg-brand-700 text-white active:scale-95'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
             >
-              <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <Plus className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+              <span>ADD</span>
             </button>
-            <span className="px-1.5 sm:px-2 font-bold text-[11px] sm:text-xs min-w-[16px] sm:min-w-[20px] text-center">{quantityInCart}</span>
-            <button
-              onClick={() => updateQuantity(product.id, quantityInCart + 1)}
-              className="p-0.5 sm:p-1 hover:bg-brand-700 rounded-full transition-colors"
-              aria-label="Increase quantity"
-            >
-              <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => addToCart(product, 1)}
-            disabled={!product.inStock}
-            className={`px-2 py-1 sm:px-2.5 sm:py-1.5 lg:px-2.5 lg:py-1 rounded-full text-[11px] sm:text-xs font-extrabold transition-all flex items-center gap-0.5 sm:gap-1 shadow-xs shrink-0 ${
-              product.inStock
-                ? 'bg-brand-600 hover:bg-brand-700 text-white active:scale-95'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-            }`}
-          >
-            <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            <span>ADD</span>
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
     </div>
