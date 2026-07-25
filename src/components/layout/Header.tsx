@@ -23,13 +23,13 @@ export const Header: React.FC<HeaderProps> = () => {
 
   const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const query = searchTerm.trim();
     if (query) {
-      router.push(`/browse?search=${encodeURIComponent(query)}`);
+      window.location.href = `/browse?search=${encodeURIComponent(query)}`;
     } else {
-      router.push('/browse');
+      window.location.href = '/browse';
     }
   };
 

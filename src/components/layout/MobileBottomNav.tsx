@@ -34,14 +34,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenSearch, 
         <span>Store</span>
       </Link>
 
-      {/* 2. Quick Search */}
-      <button
-        onClick={onOpenSearch}
-        className="flex flex-col items-center justify-center py-1 px-3 rounded-2xl text-slate-500 hover:text-brand-600 transition-all"
+      {/* 2. Quick Search / Browse */}
+      <Link
+        href="/browse"
+        className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all ${
+          pathname === '/browse' ? 'text-brand-600 font-extrabold scale-105' : 'text-slate-500 hover:text-slate-900'
+        }`}
       >
         <Search className="w-5 h-5 mb-0.5" />
-        <span>Search</span>
-      </button>
+        <span>Browse Ads</span>
+      </Link>
 
       {/* 3. Cart Button with Counter Badge */}
       <button
