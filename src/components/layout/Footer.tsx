@@ -43,9 +43,9 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-[13px]">
               {aboutUsLinks.map((link, idx) => (
                 <li key={idx}>
-                  <Link href={link.href} className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
+                  <a href={link.href} className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
                     {link.name}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -59,19 +59,14 @@ export const Footer: React.FC = () => {
                 {displayCategories.map((cat) => {
                   const catTarget = cat.slug || cat.id || cat.name;
                   return (
-                    <Link
+                    <a
                       key={cat.id || cat.slug || cat.name}
                       href={`/browse?category=${encodeURIComponent(catTarget)}`}
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }
-                      }}
                       className="text-slate-600 hover:text-slate-900 transition-colors font-normal truncate block"
                       title={cat.name}
                     >
                       {cat.name}
-                    </Link>
+                    </a>
                   );
                 })}
               </div>

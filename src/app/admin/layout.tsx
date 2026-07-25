@@ -4,14 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/context/AuthContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { Category, Product, Order, PaymentAccount, Coupon } from '@/types';
 import {
-  MOCK_ORDERS,
-  MOCK_PAYMENT_ACCOUNTS,
-  MOCK_COUPONS,
   STORE_LOCATION
 } from '@/lib/mockData';
 import {
@@ -20,23 +16,20 @@ import {
   CreditCard,
   Tag,
   Users,
-  ExternalLink,
   ShieldCheck,
   TrendingUp,
   AlertCircle,
-  Eye,
-  X,
   ArrowLeft,
   Lock,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { categories, products, banners } = useCatalog();
   const pathname = usePathname();
-  const [livePreviewOpen, setLivePreviewOpen] = useState(false);
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>([]);
@@ -61,7 +54,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <h2 className="text-lg font-bold text-slate-800">Verifying Admin Permissions...</h2>
           <p className="text-xs text-slate-500 mt-1">Checking Firebase user role database record.</p>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -103,17 +95,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
 
   // Stats calculation
-  const totalRevenue = orders.reduce((sum, o) => (o.status !== 'Cancelled' ? sum + o.totalAmount : sum), 0);
   const pendingOrders = orders.filter((o) => o.status === 'Pending').length;
-  const outOfStockCount = products.filter((p) => !p.inStock).length;
 
   const tabs = [
+    { name: 'Dashboard Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Promotional Banners', href: '/admin/banners', icon: ImageIcon, count: banners ? banners.length : 0 },
     { name: 'Product Inventory', href: '/admin/products', icon: Package, count: products.length },
     { name: 'Categories Catalog', href: '/admin/categories', icon: Layers, count: categories.length },
@@ -147,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <nav className="flex lg:flex-col gap-1.5 overflow-x-auto no-scrollbar pb-1 lg:pb-0">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
-                const isActive = pathname === tab.href || (pathname === '/admin' && tab.href === '/admin/products');
+                const isActive = pathname === tab.href;
 
                 return (
                   <Link
@@ -182,110 +172,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 );
               })}
             </nav>
-
-            <div className="mt-6 pt-4 border-t border-slate-100 space-y-2 hidden lg:block">
-              <button
-                onClick={() => setLivePreviewOpen(true)}
-                className="w-full bg-slate-900 hover:bg-black text-white font-bold text-xs py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Live Preview Modal</span>
-              </button>
-
-              <Link
-                href="/"
-                target="_blank"
-                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 border border-slate-200"
-              >
-                <span>Open Customer Store</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
-            </div>
           </aside>
 
           {/* RIGHT WORKSPACE AREA */}
           <section className="lg:col-span-9 xl:col-span-9.5 space-y-6">
-            
-            {/* Top Stats Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Revenue</p>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">Rs. {totalRevenue}</h3>
-                </div>
-                <div className="p-2.5 bg-emerald-100 text-brand-700 rounded-xl">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Orders</p>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">{orders.length}</h3>
-                </div>
-                <div className="p-2.5 bg-blue-100 text-blue-700 rounded-xl">
-                  <ShoppingBag className="w-5 h-5" />
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Products</p>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">{products.length}</h3>
-                </div>
-                <div className="p-2.5 bg-purple-100 text-purple-700 rounded-xl">
-                  <Package className="w-5 h-5" />
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Banners</p>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">{banners ? banners.length : 0}</h3>
-                </div>
-                <div className="p-2.5 bg-amber-100 text-amber-700 rounded-xl">
-                  <ImageIcon className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
-
             {/* Active Sub-route Content */}
             <div>
               {children}
             </div>
-
           </section>
 
         </div>
 
       </main>
-
-      {/* Live Preview Modal */}
-      {livePreviewOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden shadow-2xl relative">
-            <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Eye className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm font-extrabold">Live Storefront Customer View Preview</span>
-              </div>
-              <button
-                onClick={() => setLivePreviewOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-full transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <iframe
-              src="/"
-              className="w-full flex-1 border-none"
-              title="Adnan Super Store Customer View"
-            />
-          </div>
-        </div>
-      )}
-
-      <Footer />
     </div>
   );
 }
