@@ -58,7 +58,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       return Object.values(map);
     }
 
-    // Map according to Firebase categories
+    // Map according to Firebase categories (Always render all categories on the Index Page so none disappear)
     return categories
       .map((cat) => {
         const catProducts = filtered.filter((p) => 
@@ -72,13 +72,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           items: catProducts
         };
       })
-      .filter((catGroup) => {
-        if (selectedCategory !== 'all') {
-          return catGroup.slug === selectedCategory || catGroup.id === selectedCategory;
-        }
-        return catGroup.items.length > 0;
-      });
-  }, [products, categories, selectedCategory, searchQuery, sortBy, inStockOnly]);
+      .filter((catGroup) => catGroup.items.length > 0);
+  }, [products, categories, searchQuery, sortBy, inStockOnly]);
 
   if (products.length === 0) {
     return (

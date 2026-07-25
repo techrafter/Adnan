@@ -12,7 +12,17 @@ interface CategoryNavProps {
 }
 
 export const CategoryNav: React.FC<CategoryNavProps> = ({ categories, selectedCategory, onSelectCategory }) => {
-  const displayCategories = categories && categories.length > 0 ? categories : MOCK_CATEGORIES;
+  const handleCategoryNavClick = (slug: string) => {
+    onSelectCategory(slug);
+    if (slug === 'all') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const el = document.getElementById(`category-section-${slug}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   return (
     <div className="bg-white border-b border-slate-100 py-2 sticky top-[65px] sm:top-[80px] z-30 shadow-xs">
@@ -22,7 +32,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({ categories, selectedCa
           {/* Horizontal Scroll Container */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 scroll-smooth">
             <button
-              onClick={() => onSelectCategory('all')}
+              onClick={() => handleCategoryNavClick('all')}
               className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
                 selectedCategory === 'all'
                   ? 'bg-slate-900 text-white shadow-sm'
@@ -37,7 +47,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({ categories, selectedCa
               return (
                 <button
                   key={cat.id}
-                  onClick={() => onSelectCategory(cat.slug)}
+                  onClick={() => handleCategoryNavClick(cat.slug || cat.id)}
                   className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
                     isSelected
                       ? 'bg-brand-600 text-white shadow-sm font-extrabold'
