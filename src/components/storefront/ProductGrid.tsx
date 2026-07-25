@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Product, Category } from '@/types';
 import { ProductCard } from './ProductCard';
 import { STORE_LOCATION } from '@/lib/mockData';
@@ -20,6 +21,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   selectedCategory = 'all', 
   searchQuery = '' 
 }) => {
+  const router = useRouter();
   const [sortBy, setSortBy] = useState<'featured' | 'low-high' | 'high-low' | 'discount'>('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
 
@@ -66,7 +68,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         );
         return {
           id: cat.id,
-          slug: cat.slug,
+          slug: cat.slug || cat.id || cat.name,
           name: cat.name,
           icon: cat.icon,
           items: catProducts
@@ -74,6 +76,13 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       })
       .filter((catGroup) => catGroup.items.length > 0);
   }, [products, categories, searchQuery, sortBy, inStockOnly]);
+
+  const handleViewAllCategory = (catTarget: string) => {
+    const targetUrl = `/browse?category=${encodeURIComponent(catTarget)}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = targetUrl;
+    }
+  };
 
   if (products.length === 0) {
     return (
@@ -90,7 +99,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <section className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 py-4 sm:py-6">
       
       {/* Top Filter & Sort Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-slate-200">
@@ -137,8 +146,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {groupedCategories.length > 0 ? (
         <div className="space-y-8 sm:space-y-12">
           {groupedCategories.map((group) => {
-            // Take top 7 products for the 1-line showcase
             const lineAds = group.items.slice(0, 7);
+            const targetSlug = group.slug || group.id || group.name;
 
             return (
               <div 
@@ -158,14 +167,15 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     </span>
                   </div>
 
-                  {/* View All link */}
-                  <Link
-                    href={`/browse?category=${encodeURIComponent(group.slug || group.id || group.name)}`}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60 shrink-0"
+                  {/* View All button */}
+                  <button
+                    type="button"
+                    onClick={() => handleViewAllCategory(targetSlug)}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60 shrink-0 cursor-pointer"
                   >
                     <span>View all</span>
                     <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+                  </button>
                 </div>
 
                 {/* 1 Line Row displaying items (3 on mobile, 4 on tablet, 7 on PC) */}
@@ -178,13 +188,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 {/* Bottom link if more products exist */}
                 {group.items.length > 7 && (
                   <div className="mt-3 text-right">
-                    <Link
-                      href={`/browse?category=${encodeURIComponent(group.slug || group.id || group.name)}`}
-                      className="text-xs font-semibold text-slate-500 hover:text-brand-600 inline-flex items-center gap-1"
+                    <button
+                      type="button"
+                      onClick={() => handleViewAllCategory(targetSlug)}
+                      className="text-xs font-semibold text-slate-500 hover:text-brand-600 inline-flex items-center gap-1 cursor-pointer"
                     >
                       <span>Explore {group.items.length - 7} more products from {group.name}...</span>
                       <ArrowRight className="w-3 h-3" />
-                    </Link>
+                    </button>
                   </div>
                 )}
               </div>
@@ -204,4 +215,3 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     </section>
   );
 };
-
