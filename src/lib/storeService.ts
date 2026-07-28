@@ -18,25 +18,38 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   announcementText: '',
 };
 
-// Real-time listener for Site Settings from Firestore
+// Real-time listener for Site Settings from Firestore with multi-endpoint redundancy
 export function subscribeToSiteSettings(
   onUpdate: (settings: SiteSettings) => void
 ) {
+  let activeSettings: SiteSettings = { ...DEFAULT_SITE_SETTINGS };
+
+  const handleUpdate = (data: any) => {
+    if (data && typeof data === 'object') {
+      const merged = { ...DEFAULT_SITE_SETTINGS, ...activeSettings, ...data };
+      activeSettings = merged;
+      onUpdate(merged);
+    }
+  };
+
   try {
-    const settingsRef = doc(db, 'settings', 'site');
-    return onSnapshot(
-      settingsRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          onUpdate({ ...DEFAULT_SITE_SETTINGS, ...docSnap.data() } as SiteSettings);
-        } else {
-          onUpdate(DEFAULT_SITE_SETTINGS);
-        }
-      },
-      (error) => {
-        console.warn('Site Settings Firestore listener notice:', error);
-      }
-    );
+    const unsub1 = onSnapshot(doc(db, 'settings', 'site'), (snap) => {
+      if (snap.exists()) handleUpdate(snap.data());
+    }, (err) => console.warn('settings/site listener notice:', err));
+
+    const unsub2 = onSnapshot(doc(db, 'site_settings', 'main'), (snap) => {
+      if (snap.exists()) handleUpdate(snap.data());
+    }, (err) => console.warn('site_settings/main listener notice:', err));
+
+    const unsub3 = onSnapshot(doc(db, 'banners', 'site_logo_config'), (snap) => {
+      if (snap.exists()) handleUpdate(snap.data());
+    }, (err) => console.warn('banners/site_logo_config listener notice:', err));
+
+    return () => {
+      try { unsub1(); } catch (e) {}
+      try { unsub2(); } catch (e) {}
+      try { unsub3(); } catch (e) {}
+    };
   } catch (e) {
     console.warn('Firestore subscription failed for site settings:', e);
     return () => {};
@@ -193,16 +206,25 @@ export async function deleteBannerFromFirestore(id: string) {
   }
 }
 
-// Save Site Settings to Firestore
+// Save Site Settings to Firestore across redundant endpoints to guarantee cross-device sync
 export async function saveSiteSettingsToFirestore(settings: SiteSettings) {
-  try {
-    const cleanData = sanitizeFirestoreData({
-      ...settings,
-      updatedAt: new Date().toISOString()
-    });
-    await setDoc(doc(db, 'settings', 'site'), cleanData, { merge: true });
-  } catch (e) {
-    console.warn('Firestore site settings save notice:', e);
-  }
+  const cleanData = sanitizeFirestoreData({
+    ...settings,
+    updatedAt: new Date().toISOString()
+  });
+
+  const targets = [
+    doc(db, 'settings', 'site'),
+    doc(db, 'site_settings', 'main'),
+    doc(db, 'banners', 'site_logo_config')
+  ];
+
+  await Promise.allSettled(
+    targets.map((targetRef) =>
+      setDoc(targetRef, cleanData, { merge: true }).catch((err) => {
+        console.warn(`Firestore save notice for ${targetRef.path}:`, err);
+      })
+    )
+  );
 }
 
