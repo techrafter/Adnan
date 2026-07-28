@@ -8,11 +8,12 @@ import {
   Image as ImageIcon,
   CheckCircle2,
   AlertCircle,
-  RotateCcw,
+  Trash2,
+  Save,
+  Loader2,
   Sparkles,
-  Zap,
-  Sliders,
-  Eye
+  Eye,
+  Link2
 } from 'lucide-react';
 
 export default function AdminSettingsPage() {
@@ -40,18 +41,17 @@ export default function AdminSettingsPage() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      setErrorMessage('File size exceeds 2MB limit. Please upload an optimized PNG under 200KB for maximum page speed.');
-    } else {
-      setErrorMessage('');
-    }
-
     setIsUploading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
     try {
       const uploadedUrl = await uploadToCloudinary(file);
       if (uploadedUrl) {
         setLogoUrl(uploadedUrl);
-        setSuccessMessage('Logo uploaded successfully! Click "Save Logo Settings" below to apply.');
+        setSuccessMessage('Logo uploaded successfully! Click "Apply & Save Logo" below to publish.');
+      } else {
+        setErrorMessage('Could not upload image. Please try another file.');
       }
     } catch (err) {
       console.error('Logo upload error:', err);
@@ -61,13 +61,13 @@ export default function AdminSettingsPage() {
     }
   };
 
-  // Reset Logo to Default
-  const handleResetLogo = () => {
+  // Remove Logo
+  const handleRemoveLogo = () => {
     setLogoUrl('');
-    setSuccessMessage('Logo cleared. Click "Save Logo Settings" to apply.');
+    setSuccessMessage('Logo cleared. Click "Apply & Save Logo" to update your website.');
   };
 
-  // Save Settings
+  // Save Settings to Database
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -78,249 +78,176 @@ export default function AdminSettingsPage() {
       await updateSiteSettings({
         logoUrl: logoUrl.trim()
       });
-      setSuccessMessage('🎉 Website Logo successfully saved and updated across the entire website!');
-      setTimeout(() => setSuccessMessage(''), 4000);
+      setSuccessMessage('🎉 Logo successfully updated across all browsers and devices!');
+      setTimeout(() => setSuccessMessage(''), 5000);
     } catch (err) {
       console.error('Save settings error:', err);
-      setErrorMessage('Failed to save settings. Please try again.');
+      setErrorMessage('Failed to save settings to database. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12 antialiased">
+    <div className="max-w-4xl mx-auto space-y-6 pb-12 antialiased">
       
       {/* PAGE HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-black text-brand-600 uppercase tracking-wider mb-1">
-            <Sliders className="w-4 h-4" />
-            <span>Store Configuration</span>
+          <div className="flex items-center gap-2 text-xs font-bold text-brand-600 uppercase tracking-wider mb-1">
+            <Sparkles className="w-4 h-4" />
+            <span>Store Brand Identity</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Website Logo Management
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-            Upload and manage the primary brand logo displayed at the top header and footer of your website.
+            Upload your brand logo. It will appear at the top header of your website globally.
           </p>
-        </div>
-
-        <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3.5 py-2 rounded-2xl border border-emerald-200 shrink-0">
-          <Zap className="w-4 h-4 text-emerald-600 fill-emerald-600 animate-bounce" />
-          <span className="text-xs font-extrabold">Ultra-Fast Load System</span>
         </div>
       </div>
 
-      {/* NOTIFICATION MESSAGES */}
+      {/* NOTIFICATIONS */}
       {successMessage && (
-        <div className="p-4 bg-emerald-500 text-white rounded-2xl shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-4 bg-emerald-600 text-white rounded-2xl shadow-md flex items-center gap-3 animate-in fade-in duration-200">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <p className="text-xs sm:text-sm font-bold">{successMessage}</p>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-4 bg-red-500 text-white rounded-2xl shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-4 bg-rose-600 text-white rounded-2xl shadow-md flex items-center gap-3 animate-in fade-in duration-200">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <p className="text-xs sm:text-sm font-bold">{errorMessage}</p>
         </div>
       )}
 
-      {/* MAIN TWO-COLUMN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        {/* LEFT COLUMN: LOGO UPLOAD & SPECIFICATIONS (7 COLS) */}
-        <div className="lg:col-span-7 space-y-6">
-
-          {/* RECOMMENDED LOGO DIMENSIONS & GUIDANCE BOX */}
-          <div className="bg-gradient-to-br from-brand-900 via-brand-850 to-slate-900 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="flex items-center gap-2.5 text-amber-400 text-xs font-black uppercase tracking-widest mb-3">
-              <Sparkles className="w-4 h-4" />
-              <span>Recommended Logo Specifications</span>
-            </div>
-
-            <h2 className="text-lg sm:text-xl font-black text-white mb-4">
-              Logo Size & Performance Guidelines
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-              <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10">
-                <span className="text-[10px] font-bold text-amber-300 uppercase block">Recommended Dimensions</span>
-                <span className="text-base font-extrabold text-white">500 x 200 px</span>
-                <span className="text-[10px] text-slate-300 block mt-0.5">(Aspect Ratio 2.5:1 to 3:1)</span>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10">
-                <span className="text-[10px] font-bold text-amber-300 uppercase block">File Format</span>
-                <span className="text-base font-extrabold text-white">PNG / WebP</span>
-                <span className="text-[10px] text-slate-300 block mt-0.5">(Transparent Background)</span>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10">
-                <span className="text-[10px] font-bold text-amber-300 uppercase block">Max File Size</span>
-                <span className="text-base font-extrabold text-white">Under 200 KB</span>
-                <span className="text-[10px] text-slate-300 block mt-0.5">(Instant Load Speed)</span>
-              </div>
-            </div>
-
-            <ul className="space-y-1.5 text-xs text-slate-300 font-medium">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Transparent PNG files blend seamlessly with light header navigation backgrounds.</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Cloudinary CDN & local browser caching deliver instant logo load times without flashing.</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* LOGO UPLOAD & MANAGEMENT CARD */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-black text-slate-900">Upload Store Logo</h3>
-                <p className="text-xs text-slate-500">Choose a PNG or WebP image file for your website header</p>
-              </div>
+      {/* MAIN CARD */}
+      <form onSubmit={handleSaveSettings} className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-8">
+        
+        {/* SECTION 1: UPLOAD BOX */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-brand-600" />
+              <span>1. Choose Store Logo</span>
+            </label>
+            {logoUrl && (
               <button
                 type="button"
-                onClick={handleResetLogo}
-                className="text-xs font-bold text-slate-600 hover:text-red-600 flex items-center gap-1.5 transition-colors cursor-pointer px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-red-50"
+                onClick={handleRemoveLogo}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl transition-colors"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset to Default</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Remove Logo</span>
               </button>
-            </div>
+            )}
+          </div>
 
-            {/* UPLOAD DROPZONE */}
-            <div className="relative border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-3xl p-8 text-center bg-slate-50/50 hover:bg-slate-50 transition-all group cursor-pointer">
-              <input
-                type="file"
-                accept="image/png, image/jpeg, image/webp"
-                onChange={handleLogoUpload}
-                disabled={isUploading}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
+          <div className="relative border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-3xl p-6 sm:p-10 text-center bg-slate-50/60 hover:bg-slate-50 transition-all cursor-pointer group">
+            <input
+              type="file"
+              accept="image/png, image/jpeg, image/webp"
+              onChange={handleLogoUpload}
+              disabled={isUploading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
 
-              <div className="flex flex-col items-center justify-center space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                  {isUploading ? (
-                    <Zap className="w-7 h-7 text-brand-600 animate-spin" />
-                  ) : (
-                    <Upload className="w-7 h-7 text-brand-600" />
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-sm font-black text-slate-800">
-                    {isUploading ? 'Uploading Image...' : 'Click or Drag PNG Logo Here'}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Supports PNG, WebP, JPG (Recommended width: 500px - 600px)
-                  </p>
-                </div>
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <div className="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
+                {isUploading ? (
+                  <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
+                ) : (
+                  <Upload className="w-8 h-8 text-brand-600" />
+                )}
               </div>
-            </div>
 
-            {/* DIRECT URL INPUT OPTION */}
-            <div className="space-y-1.5 pt-2">
-              <label className="text-xs font-black text-slate-700 block">
-                Direct Image Link / URL (Optional)
-              </label>
-              <input
-                type="text"
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://example.com/logo.png or /logo.png"
-                className="w-full bg-slate-50 text-slate-900 text-xs px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-brand-500 font-mono"
-              />
+              <div>
+                <p className="text-base font-extrabold text-slate-900">
+                  {isUploading ? 'Uploading Logo...' : 'Click or Drag Logo Image Here'}
+                </p>
+                <p className="text-xs text-slate-500 mt-1 font-medium">
+                  PNG, WebP, or JPG (Recommended: Transparent PNG, 500x200px)
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: LIVE HEADER MOCK PREVIEW & SAVE BUTTON (5 COLS) */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* SECTION 2: LIVE HEADER PREVIEW */}
+        <div className="space-y-3 pt-2 border-t border-slate-100">
+          <label className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+            <Eye className="w-4 h-4 text-emerald-600" />
+            <span>2. Live Top Header Preview</span>
+          </label>
 
-          {/* LIVE HEADER PREVIEW CARD */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-emerald-600" />
-                <h3 className="text-sm font-black text-slate-900">Header Preview</h3>
-              </div>
-              <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                Live Storefront Mock
-              </span>
+          <div className="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800 space-y-2">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Website Top Navigation Bar
             </div>
 
-            {/* MOCK HEADER CONTAINER */}
-            <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
-              <div className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase text-center border-b border-slate-800 pb-1.5">
-                Header Bar Preview
+            <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 flex items-center justify-between gap-4">
+              {/* LOGO SLOT */}
+              <div className="w-[140px] sm:w-[200px] h-10 flex items-center justify-start border border-dashed border-slate-200 rounded-lg p-1 bg-slate-50">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt="Logo Preview"
+                    className="h-8 sm:h-9 w-auto object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span className="text-[11px] font-bold text-slate-400 italic">No Logo Set</span>
+                )}
               </div>
 
-              {/* LOGO AREA MOCK */}
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-inner">
-                <div className="flex items-center gap-2 max-w-[190px] overflow-hidden">
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt="Store Logo Preview"
-                      className="h-10 w-auto object-contain max-w-[180px]"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-lg bg-brand-600 text-white font-extrabold text-xs flex items-center justify-center">
-                      A
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 max-w-[120px] bg-slate-100 h-7 rounded-full border border-slate-200 flex items-center px-2 text-[9px] text-slate-400">
-                  Search...
-                </div>
+              {/* SEARCH MOCK */}
+              <div className="flex-1 max-w-[200px] bg-slate-100 h-8 rounded-full border border-slate-200 flex items-center px-3 text-xs text-slate-400">
+                Search products...
               </div>
             </div>
-
-            <p className="text-[11px] text-slate-500 font-medium leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200/60">
-              💡 <strong>Tip:</strong> Saving your logo updates the brand image across all customer pages instantly.
-            </p>
           </div>
-
-          {/* SAVE BUTTON CARD */}
-          <form onSubmit={handleSaveSettings} className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-            <div>
-              <h3 className="text-base font-black text-slate-900">Apply Changes</h3>
-              <p className="text-xs text-slate-500">Save updated logo to live website</p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-lg shadow-brand-600/25 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer disabled:opacity-50"
-            >
-              {isSaving ? (
-                <>
-                  <Zap className="w-4 h-4 animate-spin" />
-                  <span>Saving Logo...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Save Logo Settings</span>
-                </>
-              )}
-            </button>
-          </form>
-
         </div>
 
-      </div>
+        {/* SECTION 3: DIRECT IMAGE URL (OPTIONAL) */}
+        <div className="space-y-2 pt-2 border-t border-slate-100">
+          <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <Link2 className="w-3.5 h-3.5 text-slate-500" />
+            <span>Direct Image Link (Optional)</span>
+          </label>
+          <input
+            type="text"
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            placeholder="https://example.com/logo.png"
+            className="w-full bg-slate-50 text-slate-900 text-xs px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-brand-500 font-mono"
+          />
+        </div>
+
+        {/* SECTION 4: SAVE BUTTON */}
+        <div className="pt-4 border-t border-slate-100">
+          <button
+            type="submit"
+            disabled={isSaving || isUploading}
+            className="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer disabled:opacity-50"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Applying Changes...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                <span>Apply & Save Logo</span>
+              </>
+            )}
+          </button>
+        </div>
+
+      </form>
 
     </div>
   );

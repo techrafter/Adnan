@@ -99,13 +99,7 @@ export const Header: React.FC<HeaderProps> = () => {
                     className="h-9 sm:h-14 w-auto object-contain max-w-[120px] sm:max-w-[190px] md:max-w-[240px] group-hover:scale-[1.02] transition-transform duration-200"
                   />
                 </Link>
-              ) : (
-                <Link href="/" className="flex items-center gap-2 group py-1" title={storeName}>
-                  <span className="font-extrabold text-sm sm:text-lg md:text-xl text-brand-900 tracking-tight leading-tight group-hover:text-brand-700 transition-colors">
-                    {storeName}
-                  </span>
-                </Link>
-              )}
+              ) : null}
             </div>
 
             {/* Direct Interactive Search Bar Form */}
