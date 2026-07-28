@@ -89,21 +89,21 @@ export const Header: React.FC<HeaderProps> = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-20 gap-2 sm:gap-4">
             
-            {/* Dynamic Store Logo */}
-            <div className="flex items-center gap-2 sm:gap-6 shrink-0">
+            {/* Fixed Logo Reserved Slot (Prevents Search Bar shifting & flickering) */}
+            <div className="w-[120px] sm:w-[190px] md:w-[240px] shrink-0 h-10 sm:h-14 flex items-center justify-start">
               {logoUrl ? (
                 <Link href="/" className="flex items-center gap-2 group py-1" title={storeName}>
                   <img
                     src={logoUrl}
                     alt={storeName}
-                    className="h-9 sm:h-14 w-auto object-contain max-w-[170px] sm:max-w-[240px] group-hover:scale-[1.02] transition-transform duration-200"
+                    className="h-9 sm:h-14 w-auto object-contain max-w-[120px] sm:max-w-[190px] md:max-w-[240px] group-hover:scale-[1.02] transition-transform duration-200"
                   />
                 </Link>
               ) : null}
             </div>
 
             {/* Direct Interactive Search Bar Form */}
-            <form onSubmit={handleSearchSubmit} className="flex-1 max-w-4xl mx-1 sm:mx-4">
+            <form onSubmit={handleSearchSubmit} className="flex-1 max-w-3xl mx-2 sm:mx-4">
               <div className="relative flex items-center bg-slate-100 focus-within:bg-white text-slate-700 rounded-full pl-3 sm:pl-4 pr-1 sm:pr-1.5 py-1 sm:py-1.5 border border-slate-200 focus-within:border-brand-500 shadow-inner transition-all">
                 <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 shrink-0 mr-2" />
                 <input
