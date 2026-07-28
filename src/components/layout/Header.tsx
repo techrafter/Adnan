@@ -111,7 +111,7 @@ export const Header: React.FC<HeaderProps> = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={`Search products in ${STORE_LOCATION}...`}
+                  placeholder="Search products..."
                   className="w-full bg-transparent text-xs sm:text-sm text-slate-900 focus:outline-none placeholder:text-slate-400 font-medium"
                 />
                 <button

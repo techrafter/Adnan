@@ -24,7 +24,8 @@ import {
   Menu,
   X,
   Store,
-  Settings
+  Settings,
+  ChevronDown
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +37,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [paymentAccounts, setPaymentAccounts] = useState<PaymentAccount[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Settings dropdown toggle state
+  const isSettingsRoute = [
+    '/admin/logo',
+    '/admin/settings',
+    '/admin/categories',
+    '/admin/payments',
+    '/admin/coupons'
+  ].includes(pathname);
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsRoute);
+
+  useEffect(() => {
+    if (isSettingsRoute) {
+      setIsSettingsOpen(true);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     try {
@@ -102,14 +120,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Stats calculation
   const pendingOrders = orders.filter((o) => o.status === 'Pending').length;
 
-  const tabs = [
+  const mainTabs = [
     { name: 'Dashboard Overview', href: '/admin', icon: LayoutDashboard },
-    { name: 'Website Settings & Logo', href: '/admin/settings', icon: Settings },
-    { name: 'Promotional Banners', href: '/admin/banners', icon: ImageIcon, count: banners ? banners.length : 0 },
     { name: 'Product Inventory', href: '/admin/products', icon: Package, count: products.length },
-    { name: 'Categories Catalog', href: '/admin/categories', icon: Layers, count: categories.length },
     { name: 'Real-time Orders', href: '/admin/orders', icon: ShoppingBag, count: orders.length, badge: pendingOrders },
+    { name: 'Promotional Banners', href: '/admin/banners', icon: ImageIcon, count: banners ? banners.length : 0 },
     { name: 'User Registry', href: '/admin/users', icon: Users },
+  ];
+
+  const settingsSubTabs = [
+    { name: 'Website Logo', href: '/admin/logo', icon: ImageIcon },
+    { name: 'Categories Catalog', href: '/admin/categories', icon: Layers, count: categories.length },
     { name: 'Payment Setup', href: '/admin/payments', icon: CreditCard, count: paymentAccounts.length },
     { name: 'Coupons & Offers', href: '/admin/coupons', icon: Tag, count: coupons.length },
   ];
@@ -177,7 +198,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="px-3 pb-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
             Management Navigation
           </div>
-          {tabs.map((tab) => {
+
+          {/* MAIN TABS */}
+          {mainTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = pathname === tab.href;
 
@@ -214,6 +237,64 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Link>
             );
           })}
+
+          {/* COLLAPSIBLE SETTINGS ACCORDION */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className={`w-full px-3.5 py-2.5 rounded-2xl font-extrabold text-xs transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                isSettingsRoute && !isSettingsOpen
+                  ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <div className="flex items-center gap-3 truncate">
+                <Settings className={`w-4 h-4 shrink-0 ${isSettingsRoute ? 'text-brand-600' : 'text-slate-400'}`} />
+                <span className="truncate">SETTINGS</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                isSettingsOpen ? 'rotate-180 text-brand-600' : ''
+              }`} />
+            </button>
+
+            {/* EXPANDABLE SUB-MENU */}
+            {isSettingsOpen && (
+              <div className="mt-1 ml-3 pl-3 border-l-2 border-slate-200 space-y-1 animate-in fade-in duration-150">
+                {settingsSubTabs.map((subTab) => {
+                  const Icon = subTab.icon;
+                  const isActive = pathname === subTab.href || (subTab.href === '/admin/logo' && pathname === '/admin/settings');
+
+                  return (
+                    <Link
+                      key={subTab.href}
+                      href={subTab.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`w-full px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
+                        isActive
+                          ? 'bg-brand-600 text-white shadow-xs font-extrabold'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                        <span className="truncate">{subTab.name}</span>
+                      </div>
+
+                      {subTab.count !== undefined && (
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                          isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {subTab.count}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
         </nav>
 
         {/* BOTTOM USER PROFILE & LOGOUT FOOTER */}
@@ -251,4 +332,3 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
-

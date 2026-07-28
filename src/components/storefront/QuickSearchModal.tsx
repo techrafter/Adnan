@@ -63,7 +63,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onCl
           <input
             type="text"
             autoFocus
-            placeholder={`Search groceries, spices, milk, atta in ${STORE_LOCATION}...`}
+            placeholder="Search products..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent text-slate-800 text-sm font-medium focus:outline-none placeholder-slate-400"
