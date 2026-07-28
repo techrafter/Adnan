@@ -63,8 +63,8 @@ export default function AdminSettingsPage() {
 
   // Reset Logo to Default
   const handleResetLogo = () => {
-    setLogoUrl('/logo.png');
-    setSuccessMessage('Logo reset to default. Click "Save Logo Settings" to apply.');
+    setLogoUrl('');
+    setSuccessMessage('Logo cleared. Click "Save Logo Settings" to apply.');
   };
 
   // Save Settings
@@ -76,7 +76,7 @@ export default function AdminSettingsPage() {
 
     try {
       await updateSiteSettings({
-        logoUrl: logoUrl.trim() || '/logo.png'
+        logoUrl: logoUrl.trim()
       });
       setSuccessMessage('🎉 Website Logo successfully saved and updated across the entire website!');
       setTimeout(() => setSuccessMessage(''), 4000);

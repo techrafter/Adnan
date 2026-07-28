@@ -11,7 +11,7 @@ import {
 import { Category, Product, Banner, SiteSettings } from '@/types';
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
-  logoUrl: '/logo.png',
+  logoUrl: '',
   storeName: 'ADNAN SUPER STORE',
   tagline: 'Quality You Trust, Prices You Love',
   phone: '0300 1234567',

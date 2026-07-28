@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
   }
 
   const displayCategories = categories.length > 0 ? categories : [];
-  const logoUrl = siteSettings?.logoUrl || '/logo.png';
+  const logoUrl = siteSettings?.logoUrl || '';
   const storeName = siteSettings?.storeName || 'ADNAN SUPER STORE';
 
   const aboutUsLinks = [
@@ -85,16 +85,20 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-3 lg:col-span-3 md:border-l md:border-slate-200 md:pl-6 space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <img
-                  src={logoUrl}
-                  alt={storeName}
-                  className="h-10 w-auto object-contain max-w-[180px]"
-                  onError={(e) => {
-                    if (e.currentTarget.src !== window.location.origin + '/logo.png') {
-                      e.currentTarget.src = '/logo.png';
-                    }
-                  }}
-                />
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={storeName}
+                    className="h-10 w-auto object-contain max-w-[180px]"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                      {storeName.charAt(0)}
+                    </div>
+                    <span className="font-bold text-slate-900 text-sm tracking-tight">{storeName}</span>
+                  </div>
+                )}
               </div>
               <h4 className="font-bold text-slate-900 text-xs tracking-tight uppercase text-slate-400 mb-3">
                 Store Timings & Service

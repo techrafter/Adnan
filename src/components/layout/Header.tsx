@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const logoUrl = siteSettings?.logoUrl || '/logo.png';
+  const logoUrl = siteSettings?.logoUrl || '';
   const storeName = siteSettings?.storeName || 'ADNAN SUPER STORE';
 
   const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -92,17 +92,27 @@ export const Header: React.FC<HeaderProps> = () => {
             {/* Dynamic Store Logo */}
             <div className="flex items-center gap-2 sm:gap-6 shrink-0">
               <Link href="/" className="flex items-center gap-2 group py-1" title={storeName}>
-                <img
-                  src={logoUrl}
-                  alt={storeName}
-                  className="h-9 sm:h-14 w-auto object-contain max-w-[170px] sm:max-w-[240px] group-hover:scale-[1.02] transition-transform duration-200"
-                  onError={(e) => {
-                    // Fallback to logo.png if custom logo fails to load
-                    if (e.currentTarget.src !== window.location.origin + '/logo.png') {
-                      e.currentTarget.src = '/logo.png';
-                    }
-                  }}
-                />
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={storeName}
+                    className="h-9 sm:h-14 w-auto object-contain max-w-[170px] sm:max-w-[240px] group-hover:scale-[1.02] transition-transform duration-200"
+                  />
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-base sm:text-xl shadow-md group-hover:scale-105 transition-transform">
+                      {storeName.charAt(0)}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-extrabold text-base sm:text-2xl tracking-tight text-slate-900 leading-tight group-hover:text-brand-600 transition-colors">
+                        {storeName.split(' ')[0]}
+                      </span>
+                      <span className="text-[8px] sm:text-[10px] uppercase font-extrabold tracking-widest text-brand-600">
+                        {storeName.split(' ').slice(1).join(' ') || 'Super Store'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </Link>
             </div>
 
