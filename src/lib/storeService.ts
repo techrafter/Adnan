@@ -202,7 +202,8 @@ export async function saveSiteSettingsToFirestore(settings: SiteSettings) {
     });
     await setDoc(doc(db, 'settings', 'site'), cleanData, { merge: true });
   } catch (e) {
-    console.warn('Firestore site settings save notice:', e);
+    console.error('Firestore site settings save error:', e);
+    throw e;
   }
 }
 

@@ -91,7 +91,11 @@ export const Footer: React.FC = () => {
                     alt={storeName}
                     className="h-10 w-auto object-contain max-w-[180px]"
                   />
-                ) : null}
+                ) : (
+                  <span className="font-extrabold text-slate-900 text-lg tracking-tight">
+                    {storeName}
+                  </span>
+                )}
               </div>
               <h4 className="font-bold text-slate-900 text-xs tracking-tight uppercase text-slate-400 mb-3">
                 Store Timings & Service
