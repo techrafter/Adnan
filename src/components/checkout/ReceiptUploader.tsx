@@ -43,9 +43,9 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({ onReceiptUploa
       </label>
 
       {receiptUrl ? (
-        <div className="relative rounded-2xl border border-emerald-200 bg-emerald-50/50 p-3 flex items-center justify-between gap-3">
+        <div className="relative rounded-2xl border border-brand-200 bg-brand-50/50 p-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-300 shrink-0 bg-white">
+            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-brand-300 shrink-0 bg-white">
               <Image
                 src={getOptimizedImageUrl(receiptUrl, 300)}
                 alt="Payment Receipt Screenshot"
@@ -54,7 +54,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({ onReceiptUploa
               />
             </div>
             <div>
-              <div className="flex items-center gap-1 text-emerald-700 font-bold text-xs">
+              <div className="flex items-center gap-1 text-brand-700 font-bold text-xs">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Receipt Uploaded to Cloudinary</span>
               </div>
@@ -92,7 +92,7 @@ export const ReceiptUploader: React.FC<ReceiptUploaderProps> = ({ onReceiptUploa
             </div>
           ) : (
             <>
-              <div className="w-12 h-12 bg-emerald-100 text-brand-700 rounded-full flex items-center justify-center mb-2">
+              <div className="w-12 h-12 bg-brand-100 text-brand-700 rounded-full flex items-center justify-center mb-2">
                 <UploadCloud className="w-6 h-6" />
               </div>
               <p className="text-xs font-bold text-slate-800">

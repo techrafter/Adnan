@@ -172,7 +172,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   <button
                     type="button"
                     onClick={() => handleViewAllCategory(targetSlug)}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-full transition-colors border border-emerald-200/60 shrink-0 cursor-pointer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline bg-brand-50 px-3 py-1.5 rounded-full transition-colors border border-brand-200/60 shrink-0 cursor-pointer"
                   >
                     <span>View all</span>
                     <ChevronRight className="w-3.5 h-3.5" />

@@ -43,7 +43,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
         {selectedCategory && selectedCategory !== 'all' && (
           <button
             onClick={() => onSelectCategory && onSelectCategory('all')}
-            className="text-[11px] sm:text-xs font-extrabold text-brand-600 hover:underline bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200"
+            className="text-[11px] sm:text-xs font-extrabold text-brand-600 hover:underline bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200"
           >
             Show All
           </button>
@@ -60,7 +60,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
               onClick={() => handleCategoryClick(cat)}
               className={`group relative flex flex-col items-center justify-start p-1.5 sm:p-2 rounded-2xl transition-all duration-200 text-center cursor-pointer min-w-0 w-full ${
                 isSelected
-                  ? 'bg-emerald-50 border-2 border-brand-500 shadow-sm scale-102'
+                  ? 'bg-brand-50 border-2 border-brand-500 shadow-sm scale-102'
                   : 'bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 hover:shadow-2xs'
               }`}
             >

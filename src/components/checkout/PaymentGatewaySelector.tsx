@@ -28,10 +28,10 @@ export const PaymentGatewaySelector: React.FC<PaymentGatewaySelectorProps> = ({
           const isSelected = selectedId === account.id;
 
           const getIcon = () => {
-            if (account.methodName.toLowerCase().includes('easypaisa')) return <Smartphone className="w-5 h-5 text-emerald-600" />;
+            if (account.methodName.toLowerCase().includes('easypaisa')) return <Smartphone className="w-5 h-5 text-brand-600" />;
             if (account.methodName.toLowerCase().includes('jazzcash')) return <Smartphone className="w-5 h-5 text-red-600" />;
             if (account.type === 'bank_transfer') return <Building2 className="w-5 h-5 text-blue-600" />;
-            return <Banknote className="w-5 h-5 text-amber-600" />;
+            return <Banknote className="w-5 h-5 text-accent-500" />;
           };
 
           return (
@@ -40,7 +40,7 @@ export const PaymentGatewaySelector: React.FC<PaymentGatewaySelectorProps> = ({
               onClick={() => onSelect(account)}
               className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 relative ${
                 isSelected
-                  ? 'bg-emerald-50/80 border-brand-600 shadow-sm'
+                  ? 'bg-brand-50/80 border-brand-600 shadow-sm'
                   : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
@@ -62,9 +62,9 @@ export const PaymentGatewaySelector: React.FC<PaymentGatewaySelectorProps> = ({
 
               {/* Account details accordion */}
               {isSelected && account.type !== 'cod' && (
-                <div className="mt-3 pt-3 border-t border-emerald-200/60 text-xs space-y-1 text-slate-700 bg-white/70 p-2.5 rounded-xl">
+                <div className="mt-3 pt-3 border-t border-brand-200/60 text-xs space-y-1 text-slate-700 bg-white/70 p-2.5 rounded-xl">
                   <p className="font-mono font-bold text-slate-900">
-                    Number / Account #: <span className="bg-emerald-100 text-brand-900 px-1.5 py-0.5 rounded">{account.accountNumber}</span>
+                    Number / Account #: <span className="bg-brand-100 text-brand-900 px-1.5 py-0.5 rounded">{account.accountNumber}</span>
                   </p>
                   {account.iban && (
                     <p className="font-mono text-[11px] text-slate-600">

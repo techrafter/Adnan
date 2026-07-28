@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = () => {
         <img
           src={user.photoURL}
           alt={user.name || 'User'}
-          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-emerald-500/20"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-brand-500/20"
         />
       );
     }
@@ -74,13 +74,13 @@ export const Header: React.FC<HeaderProps> = () => {
     <>
       <header className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-xs transition-all">
         {/* Top Free Delivery Threshold Announcement Bar (Visible Everywhere) */}
-        <div className="bg-brand-900 text-emerald-100 text-[11px] sm:text-xs py-1.5 px-3 sm:px-4 text-center font-bold flex items-center justify-center gap-2 tracking-wide">
+        <div className="bg-brand-900 text-blue-100 text-[11px] sm:text-xs py-1.5 px-3 sm:px-4 text-center font-bold flex items-center justify-center gap-2 tracking-wide">
           {amountAwayFromFreeDelivery > 0 ? (
             <span>
-              💵 You are <span className="font-extrabold text-amber-300 underline">Rs. {amountAwayFromFreeDelivery}</span> away from <strong>FREE Home Delivery</strong> in {STORE_LOCATION}!
+              💵 You are <span className="font-extrabold text-accent-500 underline">Rs. {amountAwayFromFreeDelivery}</span> away from <strong>FREE Home Delivery</strong> in {STORE_LOCATION}!
             </span>
           ) : (
-            <span className="text-emerald-300 font-extrabold flex items-center justify-center gap-1">
+            <span className="text-accent-400 font-extrabold flex items-center justify-center gap-1">
               🎉 Congratulations! You have unlocked FREE Home Delivery in {STORE_LOCATION}!
             </span>
           )}
@@ -200,13 +200,13 @@ export const Header: React.FC<HeaderProps> = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={() => setIsDropdownOpen(false)}
-                              className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100 transition-colors border-t border-slate-100 my-1 cursor-pointer"
+                              className="flex items-center justify-between px-4 py-2.5 text-xs font-black text-brand-700 bg-brand-50/70 hover:bg-brand-100 transition-colors border-t border-slate-100 my-1 cursor-pointer"
                             >
                               <div className="flex items-center gap-2.5">
-                                <Shield className="w-4 h-4 text-emerald-600" />
+                                <Shield className="w-4 h-4 text-brand-600" />
                                 <span>Admin CMS Panel</span>
                               </div>
-                              <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+                              <ExternalLink className="w-3.5 h-3.5 text-brand-600" />
                             </a>
                           )}
                         </div>
@@ -240,23 +240,23 @@ export const Header: React.FC<HeaderProps> = () => {
                 </button>
               )}
 
-              {/* Fixed Width Static Cart Button */}
+              {/* Fixed Width Static Cart Button with Accent Orange CTA pop */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative w-[130px] sm:w-[145px] h-[40px] bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 px-3 border border-emerald-500/30 group shrink-0"
+                className="relative w-[130px] sm:w-[145px] h-[40px] bg-accent-500 hover:bg-accent-600 text-white rounded-full transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 px-3 border border-orange-400/30 group shrink-0"
                 aria-label="View Shopping Cart"
               >
                 <div className="relative flex items-center justify-center shrink-0">
                   <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
                   {totalItemsInCart > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-amber-400 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs border border-brand-700">
+                    <span className="absolute -top-2 -right-2 bg-brand-900 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs border border-accent-300">
                       {totalItemsInCart}
                     </span>
                   )}
                 </div>
 
                 <div className="flex flex-col items-start leading-none truncate min-w-0">
-                  <span className="text-[9px] font-extrabold text-emerald-200 uppercase tracking-widest truncate">
+                  <span className="text-[9px] font-extrabold text-orange-100 uppercase tracking-widest truncate">
                     {totalItemsInCart > 0 ? `${totalItemsInCart} ${totalItemsInCart === 1 ? 'Item' : 'Items'}` : 'Cart'}
                   </span>
                   <span className="text-xs font-black text-white truncate">

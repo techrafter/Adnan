@@ -22,7 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Badges Overlay */}
       <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 lg:top-2 lg:left-2 z-10 flex flex-col gap-0.5 sm:gap-1">
         {product.discountPercentage && product.discountPercentage > 0 && (
-          <span className="bg-emerald-600 text-white text-[9px] sm:text-[9px] lg:text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+          <span className="bg-accent-500 text-white text-[9px] sm:text-[9px] lg:text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
             {product.discountPercentage}% OFF
           </span>
         )}

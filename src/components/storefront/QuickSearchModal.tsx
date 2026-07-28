@@ -121,7 +121,7 @@ export const QuickSearchModal: React.FC<QuickSearchModalProps> = ({ isOpen, onCl
                     addToCart(product, 1);
                     onClose();
                   }}
-                  className="bg-emerald-50 hover:bg-brand-600 text-brand-700 hover:text-white px-3 py-1.5 rounded-full text-xs font-bold transition-colors shrink-0 flex items-center gap-1"
+                  className="bg-brand-50 hover:bg-brand-600 text-brand-700 hover:text-white px-3 py-1.5 rounded-full text-xs font-bold transition-colors shrink-0 flex items-center gap-1"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Add</span>

@@ -53,7 +53,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({ categories = [], selec
                   className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
                     isSelected
                       ? 'bg-brand-600 text-white shadow-sm font-extrabold'
-                      : 'text-slate-600 hover:text-brand-700 hover:bg-emerald-50'
+                      : 'text-slate-600 hover:text-brand-700 hover:bg-brand-50'
                   }`}
                 >
                   {cat.name}

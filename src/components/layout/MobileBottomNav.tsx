@@ -51,14 +51,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenSearch, 
         className="flex flex-col items-center justify-center py-1 px-3 rounded-2xl text-slate-500 hover:text-brand-600 transition-all relative"
       >
         <div className="relative">
-          <ShoppingBag className="w-5 h-5 mb-0.5" />
+          <ShoppingBag className="w-5 h-5 mb-0.5 text-accent-500" />
           {totalItems > 0 && (
-            <span className="absolute -top-1.5 -right-2 bg-brand-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+            <span className="absolute -top-1.5 -right-2 bg-accent-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
               {totalItems > 99 ? '99+' : totalItems}
             </span>
           )}
         </div>
-        <span>Rs. {subtotal}</span>
+        <span className="text-slate-700 font-extrabold">Rs. {subtotal}</span>
       </button>
 
       {/* 4. My Orders */}
@@ -85,10 +85,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenSearch, 
           target="_blank"
           rel="noopener noreferrer"
           className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all relative ${
-            pathname === '/admin' ? 'text-emerald-600 font-extrabold scale-105' : 'text-slate-500 hover:text-emerald-600'
+            pathname === '/admin' ? 'text-brand-600 font-extrabold scale-105' : 'text-slate-500 hover:text-brand-600'
           }`}
         >
-          <Shield className="w-5 h-5 mb-0.5 text-emerald-600" />
+          <Shield className="w-5 h-5 mb-0.5 text-brand-600" />
           <span>CMS Panel</span>
         </a>
       ) : (

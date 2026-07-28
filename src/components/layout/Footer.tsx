@@ -100,22 +100,22 @@ export const Footer: React.FC = () => {
 
             <ul className="space-y-3 text-[13px] text-slate-600">
               <li className="flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <Clock className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
                 <span>Open Daily: 08:00 AM - 11:00 PM</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
                 <span>Main Bazaar Road, Razzar, Pakistan</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <a href="https://wa.me/923348699487" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 transition-colors">
+                <Phone className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
+                <a href="https://wa.me/923348699487" target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">
                   +92 334 8699487 (WhatsApp Direct)
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <a href="mailto:support@adnansuperstore.com" className="hover:text-emerald-600 transition-colors">
+                <Mail className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
+                <a href="mailto:support@adnansuperstore.com" className="hover:text-accent-600 transition-colors">
                   support@adnansuperstore.com
                 </a>
               </li>

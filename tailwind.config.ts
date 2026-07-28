@@ -11,14 +11,24 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          500: "#00a950", // Bazaar green signature
-          600: "#00883e",
-          700: "#00672e",
-          800: "#045226",
-          900: "#054421",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          500: "#1652f0", // Vibrant electric blue
+          600: "#0d5be1", // Signature royal blue (matches left side of theme)
+          700: "#0052cc", // Deep royal blue
+          800: "#093285", // Dark blue
+          900: "#0a192f", // Corporate navy header
+        },
+        accent: {
+          50: "#fff7ed",
+          100: "#ffedd5",
+          200: "#fed7aa",
+          500: "#ff6b00", // Signature vibrant orange (matches right side of theme)
+          600: "#f26522", // Deep energetic orange
+          700: "#ea580c",
+          800: "#c2410c",
+          900: "#7c2d12",
         },
         slate: {
           50: "#f8fafc",

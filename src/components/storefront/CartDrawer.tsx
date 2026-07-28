@@ -65,9 +65,9 @@ export const CartDrawer: React.FC = () => {
           {/* Header */}
           <div className="p-3.5 sm:p-6 bg-slate-900 text-white flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-emerald-400" />
+              <ShoppingBag className="w-5 h-5 text-accent-400" />
               <h3 className="font-bold text-lg">Your Cart</h3>
-              <span className="bg-brand-600 text-white text-xs px-2.5 py-0.5 rounded-full font-extrabold">
+              <span className="bg-accent-500 text-white text-xs px-2.5 py-0.5 rounded-full font-extrabold">
                 {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}
               </span>
             </div>
@@ -85,22 +85,22 @@ export const CartDrawer: React.FC = () => {
               <MapPin className="w-4 h-4 text-brand-600 shrink-0" />
               <span>Delivering exclusively to <strong>{STORE_LOCATION}</strong></span>
             </div>
-            <span className="text-[10px] text-emerald-700 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+            <span className="text-[10px] text-brand-700 font-extrabold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
               ⚡ Express Delivery
             </span>
           </div>
 
           {/* Real-time Savings Banner */}
           {cart.length > 0 && totalSavings > 0 && (
-            <div className="bg-emerald-50 border-b border-emerald-200/80 px-4 py-3 text-xs font-bold text-emerald-950 flex items-center justify-between shadow-xs">
+            <div className="bg-brand-50 border-b border-brand-200/80 px-4 py-3 text-xs font-bold text-slate-900 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-sm shrink-0 shadow-xs">
                   <PiggyBank className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider">Adnan Super Store Special Savings</p>
+                  <p className="text-[10px] text-accent-600 font-extrabold uppercase tracking-wider">Adnan Super Store Special Savings</p>
                   <p className="text-xs font-black text-slate-900">
-                    You are saving <span className="text-brand-700 underline font-black">Rs. {totalSavings.toLocaleString()}</span> on this order!
+                    You are saving <span className="text-accent-600 underline font-black">Rs. {totalSavings.toLocaleString()}</span> on this order!
                   </p>
                 </div>
               </div>
@@ -112,7 +112,7 @@ export const CartDrawer: React.FC = () => {
             {cart.length === 0 ? (
               <div className="text-center py-12 sm:py-16 px-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-                  <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10" />
+                  <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-brand-500" />
                 </div>
                 <h4 className="font-bold text-slate-800 text-sm sm:text-base mb-1">Your cart is empty</h4>
                 <p className="text-xs text-slate-500 mb-6">Explore our fresh groceries and daily essential deals in {STORE_LOCATION}.</p>
@@ -131,35 +131,27 @@ export const CartDrawer: React.FC = () => {
                 return (
                   <div
                     key={item.product.id}
-                    className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors"
+                    className="flex items-center gap-2 sm:gap-3 bg-slate-50 p-2 sm:p-3 rounded-2xl border border-slate-100 shadow-2xs"
                   >
-                    {/* Thumbnail */}
-                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl overflow-hidden shrink-0 border border-slate-100 p-1">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 relative bg-white rounded-xl overflow-hidden border border-slate-200/60 shrink-0 p-1">
                       <Image
-                        src={getOptimizedImageUrl(item.product.image, 200)}
+                        src={getOptimizedImageUrl(item.product.image, 120)}
                         alt={item.product.name}
                         fill
                         className="object-contain"
                       />
                     </div>
 
-                    {/* Details */}
                     <div className="flex-1 min-w-0">
-                      <h5 className="text-[11px] sm:text-xs font-bold text-slate-800 truncate">{item.product.name}</h5>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <span className="text-[10.5px] sm:text-[11px] font-extrabold text-slate-900">Rs. {item.product.price}</span>
-                        {item.product.originalPrice && item.product.originalPrice > item.product.price && (
-                          <span className="text-[9.5px] sm:text-[10px] text-slate-400 line-through">Rs. {item.product.originalPrice}</span>
-                        )}
-                        <span className="text-[9.5px] sm:text-[10px] text-slate-500">/ {item.product.unit}</span>
-                      </div>
-                      
+                      <h5 className="text-xs font-bold text-slate-900 truncate">
+                        {item.product.name}
+                      </h5>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <p className="text-[11px] sm:text-xs font-black text-brand-700">
-                          Total: Rs. {item.product.price * item.quantity}
+                        <p className="text-xs font-black text-brand-700">
+                          Rs. {(item.product.price * item.quantity).toLocaleString()}
                         </p>
                         {itemSavings > 0 && (
-                          <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold bg-emerald-100/80 px-1 py-0.2 rounded">
+                          <span className="text-[9px] sm:text-[10px] text-accent-700 font-bold bg-accent-100/80 px-1 py-0.2 rounded">
                             Saved Rs. {itemSavings}
                           </span>
                         )}
@@ -203,7 +195,7 @@ export const CartDrawer: React.FC = () => {
               {/* Coupon Form */}
               <div>
                 {appliedCoupon ? (
-                  <div className="flex items-center justify-between bg-emerald-100/80 text-emerald-900 p-2.5 rounded-xl border border-emerald-200 text-xs font-semibold">
+                  <div className="flex items-center justify-between bg-brand-50 text-brand-900 p-2.5 rounded-xl border border-brand-200 text-xs font-semibold">
                     <span className="flex items-center gap-1">
                       <Tag className="w-4 h-4 text-brand-600" />
                       Applied: <strong>{appliedCoupon.code}</strong> (-Rs. {discount})
@@ -231,7 +223,7 @@ export const CartDrawer: React.FC = () => {
                 )}
 
                 {couponMessage && !appliedCoupon && (
-                  <p className={`text-[11px] mt-1 font-semibold ${couponMessage.success ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <p className={`text-[11px] mt-1 font-semibold ${couponMessage.success ? 'text-accent-600' : 'text-red-600'}`}>
                     {couponMessage.text}
                   </p>
                 )}
@@ -245,7 +237,7 @@ export const CartDrawer: React.FC = () => {
                 </div>
                 
                 {discount > 0 && (
-                  <div className="flex justify-between text-emerald-600 font-semibold">
+                  <div className="flex justify-between text-accent-600 font-semibold">
                     <span>Coupon Discount</span>
                     <span>- Rs. {discount.toLocaleString()}</span>
                   </div>
@@ -254,18 +246,18 @@ export const CartDrawer: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Delivery Fee ({STORE_LOCATION})</span>
                   <span className="font-semibold text-slate-800">
-                    {deliveryFee === 0 ? <strong className="text-emerald-600 uppercase">FREE</strong> : `Rs. ${deliveryFee}`}
+                    {deliveryFee === 0 ? <strong className="text-accent-600 uppercase">FREE</strong> : `Rs. ${deliveryFee}`}
                   </span>
                 </div>
 
                 {/* Savings Box */}
                 {totalSavings > 0 && (
-                  <div className="flex items-center justify-between bg-emerald-100/90 text-emerald-950 px-3 py-2 rounded-xl border border-emerald-200 font-bold text-xs">
+                  <div className="flex items-center justify-between bg-accent-50 text-slate-950 px-3 py-2 rounded-xl border border-accent-200 font-bold text-xs">
                     <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-brand-600" />
+                      <Sparkles className="w-4 h-4 text-accent-500" />
                       Total You Saved:
                     </span>
-                    <span className="text-brand-700 font-black text-sm">
+                    <span className="text-accent-600 font-black text-sm">
                       Rs. {totalSavings.toLocaleString()}
                     </span>
                   </div>
@@ -281,14 +273,14 @@ export const CartDrawer: React.FC = () => {
               <button
                 type="button"
                 onClick={handleProceedToCheckout}
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 group text-sm cursor-pointer"
+                className="w-full bg-accent-500 hover:bg-accent-600 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-2 group text-sm cursor-pointer"
               >
                 <span>Proceed to Checkout (Rs. {totalAmount.toLocaleString()})</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <p className="text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" /> Instant Order Placement & WhatsApp Receipt Engine
+                <ShieldCheck className="w-3 h-3 text-brand-600" /> Instant Order Placement & WhatsApp Receipt Engine
               </p>
 
             </div>

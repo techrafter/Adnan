@@ -20,7 +20,7 @@ export const WhyUsSection: React.FC = () => {
           
           {/* Card 1: Wide Variety */}
           <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
-            <div className="w-20 h-20 rounded-full bg-sky-100/80 text-sky-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shadow-inner">
+            <div className="w-20 h-20 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shadow-inner border border-brand-100">
               <ShoppingBag className="w-10 h-10" />
             </div>
 
@@ -35,7 +35,7 @@ export const WhyUsSection: React.FC = () => {
 
           {/* Card 2: Best Prices */}
           <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
-            <div className="w-20 h-20 rounded-full bg-sky-100/80 text-sky-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shadow-inner">
+            <div className="w-20 h-20 rounded-full bg-accent-50 text-accent-500 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shadow-inner border border-accent-100">
               <Tag className="w-10 h-10" />
             </div>
 
@@ -50,7 +50,7 @@ export const WhyUsSection: React.FC = () => {
 
           {/* Card 3: Fast Reliable Delivery */}
           <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
-            <div className="w-20 h-20 rounded-full bg-sky-100/80 text-sky-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shadow-inner">
+            <div className="w-20 h-20 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shadow-inner border border-brand-100">
               <Truck className="w-10 h-10" />
             </div>
 
