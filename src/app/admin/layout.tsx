@@ -23,7 +23,8 @@ import {
   LogOut,
   Menu,
   X,
-  Store
+  Store,
+  Settings
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -103,6 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const tabs = [
     { name: 'Dashboard Overview', href: '/admin', icon: LayoutDashboard },
+    { name: 'Website Settings & Logo', href: '/admin/settings', icon: Settings },
     { name: 'Promotional Banners', href: '/admin/banners', icon: ImageIcon, count: banners ? banners.length : 0 },
     { name: 'Product Inventory', href: '/admin/products', icon: Package, count: products.length },
     { name: 'Categories Catalog', href: '/admin/categories', icon: Layers, count: categories.length },

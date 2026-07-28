@@ -1,23 +1,27 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Category, Product, Banner } from '@/types';
+import { Category, Product, Banner, SiteSettings } from '@/types';
 import {
   subscribeToCategories,
   subscribeToProducts,
   subscribeToBanners,
+  subscribeToSiteSettings,
   saveCategoryToFirestore,
   deleteCategoryFromFirestore,
   saveProductToFirestore,
   deleteProductFromFirestore,
   saveBannerToFirestore,
-  deleteBannerFromFirestore
+  deleteBannerFromFirestore,
+  saveSiteSettingsToFirestore,
+  DEFAULT_SITE_SETTINGS
 } from '@/lib/storeService';
 
 interface CatalogContextType {
   categories: Category[];
   products: Product[];
   banners: Banner[];
+  siteSettings: SiteSettings;
   isLoading: boolean;
   addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
   updateCategory: (category: Category) => Promise<void>;
@@ -28,6 +32,7 @@ interface CatalogContextType {
   addBanner: (banner: Omit<Banner, 'id' | 'createdAt'>) => Promise<void>;
   updateBanner: (banner: Banner) => Promise<void>;
   deleteBanner: (id: string) => Promise<void>;
+  updateSiteSettings: (settings: Partial<SiteSettings>) => Promise<void>;
 }
 
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
@@ -35,6 +40,7 @@ const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 const LOCAL_STORAGE_CAT_KEY = 'adnan_categories_cache_v2';
 const LOCAL_STORAGE_PROD_KEY = 'adnan_products_cache_v2';
 const LOCAL_STORAGE_BANNER_KEY = 'adnan_banners_cache_v2';
+const LOCAL_STORAGE_SETTINGS_KEY = 'adnan_site_settings_cache_v2';
 
 export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [categories, setCategories] = useState<Category[]>(() => {
@@ -76,6 +82,18 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return [];
   });
 
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
+        if (cached) {
+          return { ...DEFAULT_SITE_SETTINGS, ...JSON.parse(cached) };
+        }
+      } catch (e) {}
+    }
+    return DEFAULT_SITE_SETTINGS;
+  });
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Load from local cache instantly on mount
@@ -95,6 +113,11 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (cachedBanner) {
         const parsed = JSON.parse(cachedBanner);
         if (Array.isArray(parsed) && parsed.length > 0) setBanners(parsed);
+      }
+      const cachedSettings = localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
+      if (cachedSettings) {
+        const parsed = JSON.parse(cachedSettings);
+        setSiteSettings((prev) => ({ ...prev, ...parsed }));
       }
       setIsLoading(false);
     } catch (e) {
@@ -128,10 +151,20 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
       } catch (e) {}
     });
 
+    const unsubSettings = subscribeToSiteSettings((settings) => {
+      if (settings) {
+        setSiteSettings(settings);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings));
+        } catch (e) {}
+      }
+    });
+
     return () => {
       unsubCat();
       unsubProd();
       unsubBanner();
+      unsubSettings();
     };
   }, []);
 
@@ -215,12 +248,21 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
     await deleteBannerFromFirestore(id);
   };
 
+  // Site Settings Action
+  const updateSiteSettings = async (newSettings: Partial<SiteSettings>) => {
+    const updated = { ...siteSettings, ...newSettings };
+    setSiteSettings(updated);
+    try { localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(updated)); } catch (e) {}
+    await saveSiteSettingsToFirestore(updated);
+  };
+
   return (
     <CatalogContext.Provider
       value={{
         categories,
         products,
         banners,
+        siteSettings,
         isLoading,
         addCategory,
         updateCategory,
@@ -230,7 +272,8 @@ export const CatalogProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deleteProduct,
         addBanner,
         updateBanner,
-        deleteBanner
+        deleteBanner,
+        updateSiteSettings
       }}
     >
       {children}

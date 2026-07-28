@@ -8,7 +8,40 @@ import {
   query,
   orderBy
 } from 'firebase/firestore';
-import { Category, Product, Banner } from '@/types';
+import { Category, Product, Banner, SiteSettings } from '@/types';
+
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  logoUrl: '/logo.png',
+  storeName: 'ADNAN SUPER STORE',
+  tagline: 'Quality You Trust, Prices You Love',
+  phone: '0300 1234567',
+  announcementText: '',
+};
+
+// Real-time listener for Site Settings from Firestore
+export function subscribeToSiteSettings(
+  onUpdate: (settings: SiteSettings) => void
+) {
+  try {
+    const settingsRef = doc(db, 'settings', 'site');
+    return onSnapshot(
+      settingsRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          onUpdate({ ...DEFAULT_SITE_SETTINGS, ...docSnap.data() } as SiteSettings);
+        } else {
+          onUpdate(DEFAULT_SITE_SETTINGS);
+        }
+      },
+      (error) => {
+        console.warn('Site Settings Firestore listener notice:', error);
+      }
+    );
+  } catch (e) {
+    console.warn('Firestore subscription failed for site settings:', e);
+    return () => {};
+  }
+}
 
 // Real-time listener for Banners from Firestore
 export function subscribeToBanners(
@@ -159,3 +192,17 @@ export async function deleteBannerFromFirestore(id: string) {
     console.warn('Firestore banner delete notice:', e);
   }
 }
+
+// Save Site Settings to Firestore
+export async function saveSiteSettingsToFirestore(settings: SiteSettings) {
+  try {
+    const cleanData = sanitizeFirestoreData({
+      ...settings,
+      updatedAt: new Date().toISOString()
+    });
+    await setDoc(doc(db, 'settings', 'site'), cleanData, { merge: true });
+  } catch (e) {
+    console.warn('Firestore site settings save notice:', e);
+  }
+}
+

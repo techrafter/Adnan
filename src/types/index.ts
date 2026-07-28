@@ -1,3 +1,12 @@
+export interface SiteSettings {
+  logoUrl?: string;
+  storeName?: string;
+  tagline?: string;
+  phone?: string;
+  announcementText?: string;
+  updatedAt?: string;
+}
+
 export interface Banner {
   id: string;
   title?: string;

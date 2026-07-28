@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search, ShoppingBag, User, Shield, LogOut, Package, Map, Settings, ChevronDown, ExternalLink } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCatalog } from '@/context/CatalogContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { STORE_LOCATION } from '@/lib/mockData';
 
@@ -17,9 +18,13 @@ export const Header: React.FC<HeaderProps> = () => {
   const router = useRouter();
   const { cart, setIsCartOpen, subtotal, amountAwayFromFreeDelivery } = useCart();
   const { user, isAdmin, logout, loading } = useAuth();
+  const { siteSettings } = useCatalog();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const logoUrl = siteSettings?.logoUrl || '/logo.png';
+  const storeName = siteSettings?.storeName || 'ADNAN SUPER STORE';
 
   const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -84,17 +89,33 @@ export const Header: React.FC<HeaderProps> = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-20 gap-2 sm:gap-4">
             
-            {/* Logo */}
+            {/* Dynamic Store Logo */}
             <div className="flex items-center gap-2 sm:gap-6 shrink-0">
-              <Link href="/" className="flex items-center gap-1.5 group">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-base sm:text-xl shadow-md group-hover:scale-105 transition-transform">
-                  A
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-extrabold text-base sm:text-2xl tracking-tight text-slate-900 leading-tight group-hover:text-brand-600 transition-colors">
-                    ADNAN
-                  </span>
-                  <span className="text-[8px] sm:text-[10px] uppercase font-extrabold tracking-widest text-brand-600">Super Store</span>
+              <Link href="/" className="flex items-center gap-2 group py-1" title={storeName}>
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={storeName}
+                    className="h-9 sm:h-14 w-auto object-contain max-w-[170px] sm:max-w-[240px] group-hover:scale-[1.02] transition-transform duration-200"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling;
+                      if (fallback) fallback.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`flex items-center gap-1.5 ${logoUrl ? 'hidden' : ''}`}>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-base sm:text-xl shadow-md group-hover:scale-105 transition-transform">
+                    {storeName.charAt(0)}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-extrabold text-base sm:text-2xl tracking-tight text-slate-900 leading-tight group-hover:text-brand-600 transition-colors">
+                      {storeName.split(' ')[0]}
+                    </span>
+                    <span className="text-[8px] sm:text-[10px] uppercase font-extrabold tracking-widest text-brand-600">
+                      {storeName.split(' ').slice(1).join(' ') || 'Super Store'}
+                    </span>
+                  </div>
                 </div>
               </Link>
             </div>
