@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useCatalog } from '@/context/CatalogContext';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
@@ -38,15 +37,11 @@ export const HeroBanner: React.FC = () => {
   const currentBanner = activeBanners[activeSlide % activeBanners.length];
 
   const renderBannerMedia = (banner: typeof currentBanner) => (
-    <div className="relative w-full h-full flex items-center justify-center bg-slate-900/5">
-      <Image
-        src={getOptimizedImageUrl(banner.image, 1400)}
-        alt={banner.title || 'Store Banner'}
-        fill
-        className="object-contain sm:object-cover"
-        priority
-      />
-    </div>
+    <img
+      src={getOptimizedImageUrl(banner.image, 1400)}
+      alt={banner.title || 'Store Banner'}
+      className="w-full h-auto object-cover block"
+    />
   );
 
   const renderBannerLink = (banner: typeof currentBanner) => {
@@ -54,7 +49,7 @@ export const HeroBanner: React.FC = () => {
       return (
         <Link
           href={`/browse?category=${encodeURIComponent(banner.targetCategory)}`}
-          className="block w-full h-full cursor-pointer"
+          className="block w-full cursor-pointer"
         >
           {renderBannerMedia(banner)}
         </Link>
@@ -66,7 +61,7 @@ export const HeroBanner: React.FC = () => {
           href={banner.targetUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-full h-full cursor-pointer"
+          className="block w-full cursor-pointer"
         >
           {renderBannerMedia(banner)}
         </a>
@@ -77,19 +72,16 @@ export const HeroBanner: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 my-0 sm:my-5">
-      <div className="relative w-full aspect-[2.2/1] sm:aspect-[4/1] rounded-none sm:rounded-3xl overflow-hidden shadow-none sm:shadow-sm bg-slate-100 border-0 sm:border sm:border-slate-200/80">
-        {/* Silky Smooth Crossfade Animation - Pure real image without buttons or overlays */}
+      <div className="relative w-full rounded-none sm:rounded-3xl overflow-hidden border-0 sm:border sm:border-slate-200/80 shadow-none sm:shadow-sm">
+        {/* Silky Smooth Crossfade Animation - Direct image without grey card container */}
         <AnimatePresence mode="popLayout">
           <motion.div
             key={activeSlide}
-            initial={{ opacity: 0, scale: 1.01 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: { duration: 0.8, ease: 'easeInOut' },
-              scale: { duration: 0.8, ease: 'easeOut' },
-            }}
-            className="absolute inset-0 w-full h-full"
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            className="w-full"
           >
             {renderBannerLink(currentBanner)}
           </motion.div>
@@ -98,5 +90,3 @@ export const HeroBanner: React.FC = () => {
     </div>
   );
 };
-
-
