@@ -76,8 +76,8 @@ export const HeroBanner: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 my-3 sm:my-5">
-      <div className="relative w-full aspect-[2.2/1] sm:aspect-[4/1] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm bg-slate-100 border border-slate-200/80">
+    <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 my-0 sm:my-5">
+      <div className="relative w-full aspect-[2.2/1] sm:aspect-[4/1] rounded-none sm:rounded-3xl overflow-hidden shadow-none sm:shadow-sm bg-slate-100 border-0 sm:border sm:border-slate-200/80">
         {/* Silky Smooth Crossfade Animation - Pure real image without buttons or overlays */}
         <AnimatePresence mode="popLayout">
           <motion.div

@@ -42,9 +42,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isSettingsRoute = [
     '/admin/logo',
     '/admin/settings',
+    '/admin/banners',
     '/admin/categories',
     '/admin/payments',
-    '/admin/coupons'
+    '/admin/coupons',
+    '/admin/users'
   ].includes(pathname);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsRoute);
@@ -124,15 +126,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Dashboard Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Product Inventory', href: '/admin/products', icon: Package, count: products.length },
     { name: 'Real-time Orders', href: '/admin/orders', icon: ShoppingBag, count: orders.length, badge: pendingOrders },
-    { name: 'Promotional Banners', href: '/admin/banners', icon: ImageIcon, count: banners ? banners.length : 0 },
-    { name: 'User Registry', href: '/admin/users', icon: Users },
   ];
 
   const settingsSubTabs = [
     { name: 'Website Logo', href: '/admin/logo', icon: ImageIcon },
+    { name: 'Promotional Banners', href: '/admin/banners', icon: ImageIcon, count: banners ? banners.length : 0 },
     { name: 'Categories Catalog', href: '/admin/categories', icon: Layers, count: categories.length },
     { name: 'Payment Setup', href: '/admin/payments', icon: CreditCard, count: paymentAccounts.length },
     { name: 'Coupons & Offers', href: '/admin/coupons', icon: Tag, count: coupons.length },
+    { name: 'User Registry', href: '/admin/users', icon: Users },
   ];
 
   return (
