@@ -62,7 +62,7 @@ export default function AdminLogoPage() {
     } catch (err) {
       console.error('Logo upload error:', err);
       setErrorMessage('Upload error encountered. Please check your file and try again.');
-    } fontally {
+    } finally {
       setIsUploading(false);
     }
   };
